@@ -1,0 +1,389 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Payment - Outfit Avenue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .payment-container {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card-preview {
+            perspective: 1000px;
+        }
+        
+        .card-front, .card-back {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .card-preview:hover .card-front {
+            transform: rotateY(180deg);
+        }
+        
+        .card-preview:hover .card-back {
+            transform: rotateY(0deg);
+        }
+        
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        
+        .processing-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            animation: progress 3s ease-in-out forwards;
+        }
+        
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .security-badge {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="payment-container max-w-4xl w-full">
+        <!-- Header -->
+        <div class="text-center mb-8 text-white">
+            <div class="inline-block bg-white/20 backdrop-blur-sm rounded-full p-4 mb-4">
+                <i class="fas fa-credit-card text-4xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Processing Your Payment</h1>
+            <p class="text-white/90">Order #{{ order_id }} | Amount: ₹{{ amount }}</p>
+        </div>
+        
+        <!-- Main Payment Card -->
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="grid md:grid-cols-2 gap-0">
+                <!-- Left Side - Card Preview & Processing -->
+                <div class="p-8 bg-gradient-to-br from-blue-50 to-indigo-50">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Payment Details</h2>
+                    
+                    <!-- Card Preview -->
+                    <div class="card-preview mb-6">
+                        <div class="relative">
+                            <!-- Card Front -->
+                            <div class="card-front bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg">
+                                <div class="flex justify-between items-start mb-6">
+                                    <div>
+                                        <div class="text-xs text-white/80 mb-1">CARD NUMBER</div>
+                                        <div class="text-lg font-mono tracking-wider">{{ card_number|slice:":4" }} **** **** {{ card_number|slice:"-4:" }}</div>
+                                    </div>
+                                    <div class="text-3xl">
+                                        {% if card_number|slice:":1" == "4" %}
+                                            <i class="fab fa-cc-visa"></i>
+                                        {% elif card_number|slice:":1" == "5" %}
+                                            <i class="fab fa-cc-mastercard"></i>
+                                        {% elif card_number|slice:":1" == "3" %}
+                                            <i class="fab fa-cc-amex"></i>
+                                        {% else %}
+                                            <i class="fas fa-credit-card"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <div class="text-xs text-white/80 mb-1">CARDHOLDER</div>
+                                        <div class="text-sm font-medium">{{ card_name|upper|default:"JOHN DOE" }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-white/80 mb-1">EXPIRES</div>
+                                        <div class="text-sm font-medium">{{ expiry|default:"MM/YY" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Card Back -->
+                            <div class="card-back absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-6 text-white shadow-lg">
+                                <div class="h-full flex flex-col justify-between">
+                                    <div class="bg-black h-8 -mx-6 mt-4"></div>
+                                    <div class="flex justify-end">
+                                        <div class="bg-white text-gray-800 px-3 py-1 rounded text-xs font-mono">
+                                            CVV: ***
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Processing Status -->
+                    <div id="processing-status" class="space-y-4">
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="processing-spinner">
+                                    <i class="fas fa-spinner text-blue-600 text-xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800">Verifying Card Details</div>
+                                    <div class="text-sm text-gray-600">Please wait while we process your payment</div>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center space-x-2 text-gray-600">
+                                <i class="fas fa-check-circle text-green-500" id="step1-icon"></i>
+                                <span id="step1-text">Validating card information</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-gray-400">
+                                <i class="fas fa-circle text-gray-300" id="step2-icon"></i>
+                                <span id="step2-text">Processing payment</span>
+                            </div>
+                            <div class="flex items-center space-x-2 text-gray-400">
+                                <i class="fas fa-circle text-gray-300" id="step3-icon"></i>
+                                <span id="step3-text">Confirming transaction</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Badge -->
+                    <div class="mt-6 flex items-center justify-center space-x-2 text-sm text-gray-600">
+                        <div class="security-badge">
+                            <i class="fas fa-shield-alt text-green-600"></i>
+                        </div>
+                        <span>Your payment is secured with 256-bit SSL encryption</span>
+                    </div>
+                </div>
+                
+                <!-- Right Side - Order Summary -->
+                <div class="p-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Order Summary</h3>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Order ID</span>
+                            <span class="font-medium text-gray-800">#{{ order_id }}</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Payment Method</span>
+                            <span class="font-medium text-gray-800">
+                                <i class="fas fa-credit-card text-blue-600 mr-1"></i>Credit/Debit Card
+                            </span>
+                        </div>
+                        <div class="border-t pt-2 mt-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-gray-800">Total Amount</span>
+                                <span class="text-xl font-bold text-blue-600">₹{{ amount }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Status Messages -->
+                    <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                            <div>
+                                <div class="font-semibold text-green-800">Payment Successful!</div>
+                                <div class="text-sm text-green-600">Your transaction has been completed</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-times-circle text-red-600 text-2xl"></i>
+                            <div>
+                                <div class="font-semibold text-red-800">Payment Failed</div>
+                                <div class="text-sm text-red-600" id="error-details">Please try again</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- What Happens Next -->
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-gray-800 mb-3">What Happens Next?</h4>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-check text-green-500 mt-1"></i>
+                                <span>You'll receive an order confirmation email</span>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-check text-green-500 mt-1"></i>
+                                <span>We'll start preparing your order</span>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <i class="fas fa-check text-green-500 mt-1"></i>
+                                <span>Tracking information will be sent once shipped</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cancel Button -->
+                    <div class="mt-6 text-center">
+                        <a href="/shop/cart/" class="text-gray-600 hover:text-gray-800 text-sm">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% csrf_token %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Get CSRF token
+        function getCSRFToken() {
+            const token = $('[name=csrfmiddlewaretoken]').val();
+            if (token) return token;
+            return getCookie('csrftoken');
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Simulate payment processing
+        $(document).ready(function() {
+            const progressBar = $('#progress-bar');
+            const step1Icon = $('#step1-icon');
+            const step1Text = $('#step1-text');
+            const step2Icon = $('#step2-icon');
+            const step2Text = $('#step2-text');
+            const step3Icon = $('#step3-icon');
+            const step3Text = $('#step3-text');
+            
+            // Step 1: Validate card (0-2 seconds)
+            setTimeout(function() {
+                progressBar.css('width', '33%');
+                step1Icon.removeClass('fa-circle text-gray-300').addClass('fa-check-circle text-green-500');
+                step1Text.removeClass('text-gray-400').addClass('text-green-600');
+            }, 2000);
+            
+            // Step 2: Process payment (2-4 seconds)
+            setTimeout(function() {
+                progressBar.css('width', '66%');
+                step2Icon.removeClass('fa-circle text-gray-300').addClass('fa-check-circle text-green-500');
+                step2Text.removeClass('text-gray-400').addClass('text-green-600');
+            }, 4000);
+            
+            // Step 3: Confirm transaction (4-6 seconds)
+            setTimeout(function() {
+                progressBar.css('width', '100%');
+                step3Icon.removeClass('fa-circle text-gray-300').addClass('fa-check-circle text-green-500');
+                step3Text.removeClass('text-gray-400').addClass('text-green-600');
+                
+                // Simulate payment success (90% success rate for demo)
+                const isSuccess = Math.random() > 0.1;
+                
+                if (isSuccess) {
+                    completePayment();
+                } else {
+                    showError('Payment declined. Please check your card details and try again.');
+                }
+            }, 6000);
+        });
+        
+        // Complete payment
+        function completePayment() {
+            $('#processing-status').fadeOut(300, function() {
+                $('#success-message').removeClass('hidden').hide().fadeIn(300);
+            });
+            
+            // Send payment success to server
+            $.ajax({
+                url: '/shop/card-payment-success/',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                },
+                data: {
+                    'order_id': '{{ order_id }}',
+                    'card_last4': '{{ card_number|slice:"-4:" }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Redirect to success page after 2 seconds
+                        setTimeout(function() {
+                            window.location.href = '/shop/order-success/?order_id={{ order_id }}';
+                        }, 2000);
+                    }
+                },
+                error: function() {
+                    // Still redirect on error (payment was successful)
+                    setTimeout(function() {
+                        window.location.href = '/shop/order-success/?order_id={{ order_id }}';
+                    }, 2000);
+                }
+            });
+        }
+        
+        // Show error
+        function showError(message) {
+            $('#processing-status').fadeOut(300, function() {
+                $('#error-message').removeClass('hidden').hide().fadeIn(300);
+                $('#error-details').text(message);
+            });
+            
+            // Show retry button after error
+            setTimeout(function() {
+                const retryBtn = $('<button>')
+                    .addClass('w-full mt-4 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium')
+                    .html('<i class="fas fa-redo mr-2"></i>Retry Payment')
+                    .on('click', function() {
+                        window.location.href = '/shop/checkout/';
+                    });
+                $('#error-message').after(retryBtn);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+

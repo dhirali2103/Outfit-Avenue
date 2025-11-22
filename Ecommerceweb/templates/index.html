@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Typed.js -->
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    
+    <title>Outfit Avenue - Fashion Forward</title>
+    
+    <style>
+      :root {
+        --primary-color: #e43c5c;
+        --secondary-color: #2c3e50;
+        --accent-color: #f39c12;
+        --text-dark: #2c3e50;
+        --text-light: #7f8c8d;
+        --bg-light: #f8f9fa;
+        --gradient-primary: linear-gradient(135deg, #e43c5c 0%, #f39c12 100%);
+        --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Poppins', sans-serif;
+        line-height: 1.6;
+        color: var(--text-dark);
+        overflow-x: hidden;
+      }
+
+      /* Navigation */
+      .navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .navbar-brand {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-color) !important;
+      }
+
+      .nav-link {
+        font-weight: 500;
+        color: var(--text-dark) !important;
+        transition: color 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-color) !important;
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 50%;
+        background: var(--gradient-primary);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+      }
+
+      .nav-link:hover::after {
+        width: 100%;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,1000 1000,0 1000,1000"/></svg>');
+        background-size: cover;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        color: white;
+        text-align: center;
+      }
+
+      .hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+
+      .hero-description {
+        font-size: 1.1rem;
+        margin-bottom: 3rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        opacity: 0.9;
+      }
+
+      .btn-custom {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        border: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-primary-custom {
+        background: var(--gradient-primary);
+        color: white;
+        margin-right: 20px;
+        box-shadow: 0 10px 30px rgba(228, 60, 92, 0.3);
+      }
+
+      .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(228, 60, 92, 0.4);
+        color: white;
+      }
+
+      .btn-outline-custom {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+      }
+
+      .btn-outline-custom:hover {
+        background: white;
+        color: var(--primary-color);
+        transform: translateY(-3px);
+      }
+
+      /* Floating Elements */
+      .floating-element {
+        position: absolute;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .floating-element:nth-child(1) {
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .floating-element:nth-child(2) {
+        top: 60%;
+        right: 10%;
+        animation-delay: 2s;
+      }
+
+      .floating-element:nth-child(3) {
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+      }
+
+      /* Features Section */
+      .features-section {
+        padding: 100px 0;
+        background: var(--bg-light);
+      }
+
+      .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+        border: 1px solid rgba(228, 60, 92, 0.1);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        font-size: 2rem;
+        color: white;
+      }
+
+      .feature-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: var(--text-dark);
+      }
+
+      .feature-description {
+        color: var(--text-light);
+        line-height: 1.6;
+      }
+
+      /* Categories Section */
+      .categories-section {
+        padding: 100px 0;
+        background: white;
+      }
+
+      .category-card {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        height: 400px;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .category-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      .category-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+      }
+
+      .category-card:hover .category-image {
+        transform: scale(1.1);
+      }
+
+      .category-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(228, 60, 92, 0.8) 0%, rgba(243, 156, 18, 0.8) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: all 0.4s ease;
+        color: white;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .category-card:hover .category-overlay {
+        opacity: 1;
+      }
+
+      .category-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        transform: translateY(20px);
+        transition: transform 0.4s ease;
+      }
+
+      .category-card:hover .category-icon {
+        transform: translateY(0);
+      }
+
+      .category-title {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        transform: translateY(20px);
+        transition: transform 0.4s ease;
+        font-family: 'Playfair Display', serif;
+      }
+
+      .category-card:hover .category-title {
+        transform: translateY(0);
+      }
+
+      .category-description {
+        font-size: 1rem;
+        opacity: 0.9;
+        transform: translateY(20px);
+        transition: transform 0.4s ease;
+        margin-bottom: 1rem;
+      }
+
+      .category-card:hover .category-description {
+        transform: translateY(0);
+      }
+
+      .category-arrow {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        font-size: 1.5rem;
+        transition: all 0.4s ease;
+      }
+
+      .category-card:hover .category-arrow {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* Newsletter Section */
+      .newsletter-section {
+        background: var(--gradient-primary);
+        padding: 80px 0;
+        color: white;
+      }
+
+      .newsletter-form {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .form-control-custom {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+      }
+
+      .form-control-custom::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .form-control-custom:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: white;
+        box-shadow: none;
+        color: white;
+      }
+
+      /* Footer */
+      .footer {
+        background: var(--secondary-color);
+        color: white;
+        padding: 60px 0 30px;
+      }
+
+      .footer h5 {
+        color: var(--accent-color);
+        margin-bottom: 20px;
+      }
+
+      .social-links a {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        color: white;
+        text-align: center;
+        line-height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .social-links a:hover {
+        background: var(--accent-color);
+        transform: translateY(-3px);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+          font-size: 1.2rem;
+        }
+        
+        .btn-custom {
+          padding: 12px 30px;
+          font-size: 1rem;
+          margin-bottom: 10px;
+        }
+        
+        .feature-card {
+          margin-bottom: 30px;
+        }
+        
+        .category-card {
+          height: 300px;
+        }
+        
+        .category-title {
+          font-size: 1.5rem;
+        }
+        
+        .category-icon {
+          font-size: 2.5rem;
+        }
+      }
+
+      /* Scroll animations */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#home">
+          <i class="fas fa-sun me-2"></i>Outfit Avenue
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#home">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#features">Features</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#categories">Categories</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/shop">Shop</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/blog">Blog</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+      <!-- Floating Elements -->
+      <div class="floating-element">
+        <i class="fas fa-tshirt" style="font-size: 3rem; color: rgba(255,255,255,0.1);"></i>
+      </div>
+      <div class="floating-element">
+        <i class="fas fa-shopping-bag" style="font-size: 2.5rem; color: rgba(255,255,255,0.1);"></i>
+      </div>
+      <div class="floating-element">
+        <i class="fas fa-heart" style="font-size: 2rem; color: rgba(255,255,255,0.1);"></i>
+      </div>
+
+      <div class="container">
+        <div class="hero-content" data-aos="fade-up">
+          <h1 class="hero-title">
+            <span id="typed"></span>
+          </h1>
+          <p class="hero-subtitle">Fashion Forward, Always</p>
+          <p class="hero-description">
+            At Outfit Avenue, we believe in fashion as a form of self-expression. Established in 2024, our online store is dedicated to curating the latest trends and timeless classics, providing you with a seamless shopping experience.
+          </p>
+          <div class="hero-buttons">
+            <a href="../../shop/" class="btn btn-custom btn-primary-custom">
+              <i class="fas fa-shopping-cart me-2"></i>Explore Shop
+            </a>
+            <a href="../../blog/" class="btn btn-custom btn-outline-custom">
+              <i class="fas fa-blog me-2"></i>Read Blog
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center mb-5">
+            <h2 class="display-4 fw-bold" data-aos="fade-up">Why Choose Outfit Avenue?</h2>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100">Discover what makes us your perfect fashion destination</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-shipping-fast"></i>
+              </div>
+              <h3 class="feature-title">Fast Delivery</h3>
+              <p class="feature-description">
+                Get your favorite outfits delivered to your doorstep within 2-3 business days with our express shipping service.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-undo-alt"></i>
+              </div>
+              <h3 class="feature-title">Easy Returns</h3>
+              <p class="feature-description">
+                Not satisfied? No problem! Enjoy hassle-free returns within 30 days with our simple return process.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-gem"></i>
+              </div>
+              <h3 class="feature-title">Premium Quality</h3>
+              <p class="feature-description">
+                Every piece is carefully selected for its quality, style, and durability to ensure you look and feel amazing.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="categories-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center mb-5">
+            <h2 class="display-4 fw-bold" data-aos="fade-up">Shop by Category</h2>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100">Explore our diverse collection of fashion categories</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          <!-- Women's Fashion Category -->
+          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+            <div class="category-card" onclick="navigateToCategory('/shop/womencat/')">
+              <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                   alt="Women's Fashion" class="category-image">
+              <div class="category-overlay">
+                <i class="fas fa-female category-icon"></i>
+                <h3 class="category-title">Women's Fashion</h3>
+                <p class="category-description">Beautiful sarees, elegant kurtas, and stunning lehenga cholis</p>
+                <i class="fas fa-arrow-right category-arrow"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Men's Fashion Category -->
+          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
+            <div class="category-card" onclick="navigateToCategory('/shop/mencat/')">
+              <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                   alt="Men's Fashion" class="category-image">
+              <div class="category-overlay">
+                <i class="fas fa-male category-icon"></i>
+                <h3 class="category-title">Men's Collection</h3>
+                <p class="category-description">Elegant kurtas, stylish shirts, and traditional sherwanis</p>
+                <i class="fas fa-arrow-right category-arrow"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kids Wear Category -->
+          <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="300">
+            <div class="category-card" onclick="navigateToCategory('/shop/kidscat/')">
+              <img src="https://www.bownbee.com/cdn/shop/files/Traditional_Tales.png?v=1749551237&width=2400" 
+                   alt="Kids Wear" class="category-image">
+              <div class="category-overlay">
+                <i class="fas fa-child category-icon"></i>
+                <h3 class="category-title">Kids' Wear</h3>
+                <p class="category-description">Adorable and comfortable clothing for your little ones</p>
+                <i class="fas fa-arrow-right category-arrow"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" style="background: var(--bg-light); padding: 100px 0;">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12 text-center mb-5">
+            <h2 class="display-4 fw-bold" data-aos="fade-up">What Our Customers Say</h2>
+            <p class="lead" data-aos="fade-up" data-aos-delay="100">Real reviews from our satisfied fashion-forward customers</p>
+          </div>
+        </div>
+        <div class="row g-4">
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="testimonial-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; height: 100%;">
+              <div class="testimonial-avatar mb-3">
+                <div style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2rem; color: white;">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class="testimonial-rating mb-3">
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+              </div>
+              <p class="testimonial-text mb-3" style="font-style: italic; color: var(--text-light);">
+                "Outfit Avenue has completely transformed my wardrobe! The quality is exceptional and the styles are always on-trend. I get compliments everywhere I go!"
+              </p>
+              <h6 class="testimonial-author" style="color: var(--text-dark); font-weight: 600;">Sarah Johnson</h6>
+              <small class="text-muted">Fashion Blogger</small>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="testimonial-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; height: 100%;">
+              <div class="testimonial-avatar mb-3">
+                <div style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2rem; color: white;">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class="testimonial-rating mb-3">
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+              </div>
+              <p class="testimonial-text mb-3" style="font-style: italic; color: var(--text-light);">
+                "The customer service is outstanding and the delivery is super fast. I love how they curate pieces that are both stylish and comfortable. Highly recommended!"
+              </p>
+              <h6 class="testimonial-author" style="color: var(--text-dark); font-weight: 600;">Michael Chen</h6>
+              <small class="text-muted">Business Executive</small>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="testimonial-card" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; height: 100%;">
+              <div class="testimonial-avatar mb-3">
+                <div style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2rem; color: white;">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class="testimonial-rating mb-3">
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+                <i class="fas fa-star" style="color: #f39c12;"></i>
+              </div>
+              <p class="testimonial-text mb-3" style="font-style: italic; color: var(--text-light);">
+                "As a busy mom, I appreciate the convenience and quality of Outfit Avenue. The pieces are versatile and perfect for any occasion. My go-to fashion destination!"
+              </p>
+              <h6 class="testimonial-author" style="color: var(--text-dark); font-weight: 600;">Emily Rodriguez</h6>
+              <small class="text-muted">Working Mom</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+            <h2 class="display-5 fw-bold mb-4">Stay in Style</h2>
+            <p class="lead mb-5">Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and fashion tips!</p>
+            <form class="newsletter-form" id="newsletterForm">
+              <div class="input-group">
+                <input type="email" class="form-control form-control-custom" placeholder="Enter your email address" required>
+                <button class="btn btn-light btn-lg px-4" type="submit">
+                  <i class="fas fa-paper-plane me-2"></i>Subscribe
+                </button>
+              </div>
+            </form>
+            <div id="newsletterMessage" class="mt-3" style="display: none;">
+              <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>Thank you for subscribing! You'll receive our latest updates soon.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-4 col-md-6">
+            <h5><i class="fas fa-sun me-2"></i>Outfit Avenue</h5>
+            <p class="mb-3">Your ultimate destination for fashion-forward clothing and accessories. We bring you the latest trends and timeless classics.</p>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-pinterest"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-6">
+            <h5>Quick Links</h5>
+            <ul class="list-unstyled">
+              <li><a href="/shop" class="text-light text-decoration-none">Shop</a></li>
+              <li><a href="/blog" class="text-light text-decoration-none">Blog</a></li>
+              <li><a href="#features" class="text-light text-decoration-none">Features</a></li>
+              <li><a href="#categories" class="text-light text-decoration-none">Categories</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-6">
+            <h5>Customer Care</h5>
+            <ul class="list-unstyled">
+              <li><a href="#" class="text-light text-decoration-none">Size Guide</a></li>
+              <li><a href="#" class="text-light text-decoration-none">Shipping Info</a></li>
+              <li><a href="#" class="text-light text-decoration-none">Returns</a></li>
+              <li><a href="#" class="text-light text-decoration-none">FAQ</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <h5>Contact Info</h5>
+            <ul class="list-unstyled">
+              <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i>123 Fashion Street, Style City</li>
+              <li class="mb-2"><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</li>
+              <li class="mb-2"><i class="fas fa-envelope me-2"></i>info@outfitavenue.com</li>
+              <li><i class="fas fa-clock me-2"></i>Mon-Fri: 9AM-6PM</li>
+            </ul>
+          </div>
+        </div>
+        <hr class="my-4">
+        <div class="row">
+          <div class="col-md-6">
+            <p>&copy; 2024 Outfit Avenue. All rights reserved.</p>
+          </div>
+          <div class="col-md-6 text-end">
+            <p>Made with <i class="fas fa-heart text-danger"></i> for fashion lovers</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+      
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+      <script>
+      // Initialize AOS
+      AOS.init({
+        duration: 1000,
+        once: true,
+        offset: 100
+      });
+
+      // Typed.js initialization
+        var typed = new Typed("#typed", {
+          strings: [
+          "Welcome to Outfit Avenue - Your Trendsetting Destination 🛍️",
+          "Embark on a Journey with Outfit Avenue 🌟",
+          "Where Style Meets Comfort ✨",
+          "Fashion Forward, Always 👗"
+          ],
+          backSpeed: 30,
+          smartBackspace: true,
+          backDelay: 1700,
+          startDelay: 1000,
+          typeSpeed: 25,
+          loop: true,
+        });
+
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Newsletter form submission
+      document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value;
+        
+        // Simulate form submission
+        setTimeout(() => {
+          document.getElementById('newsletterMessage').style.display = 'block';
+          this.reset();
+          
+          // Hide message after 5 seconds
+          setTimeout(() => {
+            document.getElementById('newsletterMessage').style.display = 'none';
+          }, 5000);
+        }, 1000);
+      });
+
+      // Navbar background change on scroll
+      window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+          navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+        } else {
+          navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+        }
+      });
+
+      // Category navigation function
+      function navigateToCategory(url) {
+        // Add a smooth transition effect
+        document.body.style.opacity = '0.8';
+        setTimeout(() => {
+          window.location.href = url;
+        }, 300);
+      }
+
+      // Add click effects to category cards
+      document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+          // Add click animation
+          this.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            this.style.transform = 'scale(1.05)';
+          }, 150);
+        });
+      });
+
+      // Parallax effect for floating elements
+      window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelectorAll('.floating-element');
+        
+        parallax.forEach((element, index) => {
+          const speed = 0.5 + (index * 0.1);
+          element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+      });
+
+      // Add scroll-triggered animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, observerOptions);
+
+      // Observe all fade-in elements
+      document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+        });
+      </script>
+  </body>
+</html>

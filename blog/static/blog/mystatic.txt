@@ -1,0 +1,2 @@
+Hello Everyone!!! 
+This is our Static File in Blog App.

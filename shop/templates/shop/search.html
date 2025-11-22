@@ -1,0 +1,595 @@
+{% extends 'shop/basic.html' %}
+{% load static %}
+
+{% block title %}Search Results{% if query %} for "{{ query }}"{% endif %} - Outfit Avenue{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Search Results Header */
+  .search-results-header {
+    background: linear-gradient(135deg, #e43c5c 0%, #f39c12 100%);
+    color: white;
+    padding: 50px 0 40px;
+    margin-top: 80px;
+    margin-bottom: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-query-display {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-query-display i {
+    margin-right: 15px;
+    font-size: 1.8rem;
+  }
+
+  .results-count {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    font-weight: 400;
+  }
+
+  .results-count .badge {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin: 0 5px;
+    font-weight: 600;
+  }
+
+  /* Main Content Container */
+  .search-content-wrapper {
+    background: #f8f9fa;
+    padding: 40px 0 60px;
+    min-height: 60vh;
+  }
+
+  .results-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #e43c5c;
+    display: flex;
+    align-items: center;
+  }
+
+  .section-title i {
+    margin-right: 12px;
+    color: #e43c5c;
+    font-size: 1.6rem;
+  }
+
+  /* Categories Section */
+  .categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #e43c5c 0%, #f39c12 100%);
+    color: white;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(228, 60, 92, 0.3);
+  }
+
+  .category-badge:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(228, 60, 92, 0.4);
+    color: white;
+  }
+
+  .category-badge i {
+    margin-right: 8px;
+    font-size: 0.9rem;
+  }
+
+  /* Product Cards Enhancement */
+  .product-category-header {
+    background: linear-gradient(135deg, rgba(228, 60, 92, 0.1) 0%, rgba(243, 156, 18, 0.1) 100%);
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border-left: 4px solid #e43c5c;
+  }
+
+  .product-category-header h4 {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .product-category-header i {
+    margin-right: 10px;
+    color: #e43c5c;
+  }
+
+  .product-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid rgba(228, 60, 92, 0.1);
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: rgba(228, 60, 92, 0.3);
+  }
+
+  .product-image {
+    height: 280px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(228, 60, 92, 0.85), rgba(243, 156, 18, 0.85));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover .product-overlay {
+    opacity: 1;
+  }
+
+  .product-overlay .btn {
+    padding: 12px 25px;
+    font-weight: 600;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+  }
+
+  .product-info {
+    padding: 20px;
+  }
+
+  .product-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    min-height: 50px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #e43c5c;
+    margin-bottom: 15px;
+  }
+
+  /* Blog Posts Section */
+  .blog-post-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid rgba(228, 60, 92, 0.1);
+  }
+
+  .blog-post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: rgba(228, 60, 92, 0.3);
+  }
+
+  .blog-post-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+  }
+
+  .blog-post-content {
+    padding: 25px;
+  }
+
+  .blog-post-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  .blog-post-excerpt {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 18px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .blog-post-link {
+    color: #e43c5c;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
+
+  .blog-post-link:hover {
+    color: #f39c12;
+    transform: translateX(5px);
+  }
+
+  /* No Results Section */
+  .no-results {
+    text-align: center;
+    padding: 80px 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .no-results i {
+    font-size: 5rem;
+    color: #e43c5c;
+    margin-bottom: 25px;
+    opacity: 0.7;
+  }
+
+  .no-results h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  .no-results p {
+    color: #7f8c8d;
+    margin-bottom: 35px;
+    font-size: 1.1rem;
+  }
+
+  .search-suggestions {
+    margin-top: 30px;
+  }
+
+  .search-suggestions p {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  .suggestion-item {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    background: #f8f9fa;
+    border-radius: 25px;
+    border: 2px solid rgba(228, 60, 92, 0.2);
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .suggestion-item:hover {
+    background: linear-gradient(135deg, #e43c5c 0%, #f39c12 100%);
+    color: white;
+    border-color: #e43c5c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(228, 60, 92, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .search-results-header {
+      padding: 35px 0 30px;
+      margin-top: 70px;
+    }
+
+    .search-query-display {
+      font-size: 1.4rem;
+    }
+
+    .search-query-display i {
+      font-size: 1.3rem;
+    }
+
+    .results-count {
+      font-size: 0.95rem;
+    }
+
+    .results-section {
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+    }
+
+    .product-image {
+      height: 220px;
+    }
+
+    .product-info {
+      padding: 15px;
+    }
+
+    .product-title {
+      font-size: 1rem;
+      min-height: 45px;
+    }
+
+    .product-price {
+      font-size: 1.3rem;
+    }
+  }
+
+  /* Empty State */
+  .empty-search-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-search-state i {
+    font-size: 4rem;
+    color: #e43c5c;
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-results-header">
+  <div class="container">
+    <div class="search-query-display">
+      <i class="fas fa-search"></i>
+      <div>
+        {% if query %}
+          Search Results for <span style="font-style: italic;">"{{ query }}"</span>
+        {% else %}
+          Search
+        {% endif %}
+      </div>
+    </div>
+    {% if query and total_results > 0 %}
+      <div class="results-count">
+        Found <strong>{{ total_results }}</strong> result{{ total_results|pluralize }}
+        {% if product_count > 0 %}
+          <span class="badge">{{ product_count }} product{{ product_count|pluralize }}</span>
+        {% endif %}
+        {% if blog_count > 0 %}
+          <span class="badge">{{ blog_count }} blog post{{ blog_count|pluralize }}</span>
+        {% endif %}
+        {% if category_count > 0 %}
+          <span class="badge">{{ category_count }} categor{{ category_count|pluralize:"y,ies" }}</span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="search-content-wrapper">
+  <div class="container">
+    {% if query %}
+      {% if has_results %}
+        <!-- Categories Section -->
+        {% if categories %}
+          <div class="results-section">
+            <h2 class="section-title">
+              <i class="fas fa-tags"></i>
+              Matching Categories
+            </h2>
+            <div class="categories-container">
+              {% for category in categories %}
+                <a href="{% if category == "Men's Fashion" %}{% url 'MensCategory' %}{% elif category == "Women's Fashion" %}{% url 'WomensCategory' %}{% elif category == "Kids Wear" %}{% url 'KidsCategory' %}{% else %}#{% endif %}" class="category-badge">
+                  <i class="fas fa-folder"></i>{{ category }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Products Section -->
+        {% if allProds %}
+          <div class="results-section">
+            <h2 class="section-title">
+              <i class="fas fa-shopping-bag"></i>
+              Products ({{ product_count }})
+            </h2>
+            
+            {% for product, range, nSlides in allProds %}
+              <div class="product-category-header">
+                <h4>
+                  <i class="fas fa-th-large"></i>{{ product.0.category }}
+                </h4>
+              </div>
+              <div class="row g-4 mb-4">
+                {% for i in product %}
+                  <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="product-card" data-category="{{ product.0.category }}">
+                      <div class="product-image" style="background-image: url('/media/{{ i.image }}');">
+                        <div class="product-overlay">
+                          <a href="{% url 'ProductView' i.id %}" class="btn btn-light btn-lg quick-view-btn"
+                             data-product-id="{{ i.id }}"
+                             data-product-name="{{ i.product_name }}"
+                             data-product-price="{{ i.price }}"
+                             data-product-category="{{ product.0.category }}"
+                             data-product-image="/media/{{ i.image }}">
+                            <i class="fas fa-eye me-2"></i>Quick View
+                          </a>
+                        </div>
+                      </div>
+                      <div class="product-info">
+                        <h5 class="product-title" id="namepr{{ i.id }}">{{ i.product_name }}</h5>
+                        <div class="product-price">₹<span id="pricepr{{ i.id }}">{{ i.price }}</span></div>
+                        <div class="d-flex justify-content-center align-items-center">
+                          <div id="divpr{{ i.id }}" class="divpr">
+                            <button id="pr{{ i.id }}" class="btn btn-primary-custom btn-sm add-to-cart" 
+                                    data-product-id="{{ i.id }}" 
+                                    data-product-name="{{ i.product_name }}" 
+                                    data-product-price="{{ i.price }}">
+                              <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% if not forloop.last %}<hr class="my-5" style="border-color: rgba(228, 60, 92, 0.2);">{% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Blog Posts Section -->
+        {% if blog_posts %}
+          <div class="results-section">
+            <h2 class="section-title">
+              <i class="fas fa-blog"></i>
+              Blog Posts ({{ blog_count }})
+            </h2>
+            <div class="row g-4">
+              {% for post in blog_posts %}
+                <div class="col-lg-4 col-md-6">
+                  <div class="blog-post-card">
+                    {% if post.thumbnail %}
+                      <img src="/media/{{ post.thumbnail }}" alt="{{ post.title }}" class="blog-post-image">
+                    {% else %}
+                      <div class="blog-post-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-image fa-3x text-white"></i>
+                      </div>
+                    {% endif %}
+                    <div class="blog-post-content">
+                      <h5 class="blog-post-title">{{ post.title }}</h5>
+                      <p class="blog-post-excerpt">
+                        {{ post.head0|slice:":150" }}{% if post.head0|length > 150 %}...{% endif %}
+                      </p>
+                      <a href="{% url 'blogPost' post.post_id %}" class="blog-post-link">
+                        Read More <i class="fas fa-arrow-right ms-2"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      {% else %}
+        <!-- No Results -->
+        <div class="no-results">
+          <i class="fas fa-search"></i>
+          <h3>No Results Found</h3>
+          <p>{{ msg|default:"We couldn't find any results matching your search." }}</p>
+          <div class="search-suggestions">
+            <p><strong>Try searching for:</strong></p>
+            <a href="/shop/search/?search=kurta" class="suggestion-item">Kurta</a>
+            <a href="/shop/search/?search=shirt" class="suggestion-item">Shirt</a>
+            <a href="/shop/search/?search=dress" class="suggestion-item">Dress</a>
+            <a href="/shop/search/?search=jeans" class="suggestion-item">Jeans</a>
+            <a href="/shop/search/?search=shoes" class="suggestion-item">Shoes</a>
+          </div>
+        </div>
+      {% endif %}
+    {% else %}
+      <!-- Empty Search -->
+      <div class="no-results">
+        <i class="fas fa-search"></i>
+        <h3>Start Your Search</h3>
+        <p>{{ msg|default:"Enter a search term in the search box above to find products, blog posts, and categories." }}</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Cart functionality for search results page
+  // Uses the global cart system from base.html
+  $(document).ready(function() {
+    // Wait for base.html scripts to load
+    setTimeout(function() {
+      // Initialize cart from localStorage if needed
+      if (localStorage.getItem('cart') == null) {
+        localStorage.setItem('cart', JSON.stringify({}));
+      }
+      
+      // Load cart and update buttons using the global updateCartButtons function
+      var cart = JSON.parse(localStorage.getItem('cart') || '{}');
+      
+      // Use the global updateCartButtons function from base.html
+      if (typeof window.updateCartButtons === 'function') {
+        window.updateCartButtons(cart);
+      }
+      
+      // Update cart count display using the global updateCartDisplay function
+      if (typeof window.updateCartDisplay === 'function') {
+        window.updateCartDisplay();
+      }
+      
+      // Also listen for storage events (when cart is updated from other tabs/pages)
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'cart') {
+          var updatedCart = JSON.parse(e.newValue || '{}');
+          if (typeof window.updateCartButtons === 'function') {
+            window.updateCartButtons(updatedCart);
+          }
+          if (typeof window.updateCartDisplay === 'function') {
+            window.updateCartDisplay();
+          }
+        }
+      });
+      
+      console.log('Search page cart functionality initialized');
+    }, 200);
+  });
+</script>
+{% endblock %}

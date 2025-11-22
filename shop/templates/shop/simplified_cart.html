@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .cart-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .cart-header {
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .item-image {
+            width: 80px;
+            height: 80px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+            color: #666;
+        }
+        .item-details {
+            flex: 1;
+        }
+        .item-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .item-price {
+            color: #e43c5c;
+            font-weight: 500;
+        }
+        .item-variants {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+        }
+        .quantity-btn {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quantity-btn:hover {
+            background: #e9ecef;
+        }
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            margin: 0 10px;
+        }
+        .item-total {
+            font-weight: 600;
+            color: #333;
+            margin: 0 20px;
+        }
+        .remove-item {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+        .remove-item:hover {
+            color: #c82333;
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-cart i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #e43c5c;
+        }
+        .cart-summary {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eaeaea;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .summary-row.total {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eaeaea;
+        }
+    </style>
+</head>
+<body>
+    <div class="cart-container">
+        <div class="cart-header">
+            <h2>Shopping Cart</h2>
+        </div>
+        
+        <div id="cartItems"></div>
+        
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">₹0</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax (18%)</span>
+                <span id="tax">₹0</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">₹0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize cart
+        var cart = {};
+        var totalPrice = 0;
+        var subtotal = 0;
+        var tax = 0;
+
+        // Function to load cart from localStorage
+        function loadCart() {
+            try {
+                const storedCart = localStorage.getItem('cart');
+                if (storedCart) {
+                    return JSON.parse(storedCart);
+                }
+                return {};
+            } catch (e) {
+                console.error('Error loading cart from localStorage:', e);
+                return {};
+            }
+        }
+
+        // Add test items to cart for debugging
+        function addTestItemsToCart() {
+            // Check if cart is empty
+            if (Object.keys(cart).length === 0) {
+                console.log('Adding test items to cart for debugging');
+                
+                // Add two sample items to the cart
+                cart['prod10_M_red'] = [2, 'Fashion T-Shirt', 999, 'M', 'Red'];
+                cart['prod11_L_blue'] = [1, 'Premium Jeans', 1999, 'L', 'Blue'];
+                
+                // Save to localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+                console.log('Test items added to cart');
+            }
+        }
+
+        // Function to populate cart items
+        function populateCartItems() {
+            var cartItemsHtml = '';
+            totalPrice = 0; // Reset total price
+            
+            console.log('populateCartItems called, cart:', cart);
+            console.log('Object.keys(cart).length:', Object.keys(cart).length);
+            
+            if (Object.keys(cart).length === 0) {
+                console.log('Cart is empty, showing empty state');
+                cartItemsHtml = '<div class="empty-cart">' +
+                    '<i class="fas fa-shopping-cart"></i>' +
+                    '<h4>Your cart is empty</h4>' +
+                    '<p>Add some items to your cart to see them here!</p>' +
+                    '</div>';
+            } else {
+                console.log('Cart has items, populating...');
+                for (var key in cart) {
+                    if (cart.hasOwnProperty(key)) {
+                        console.log('Processing item:', key, cart[key]);
+                        if (Array.isArray(cart[key]) && cart[key].length >= 3) {
+                            var qty = cart[key][0];
+                            var name = cart[key][1];
+                            var price = cart[key][2];
+                            var size = cart[key][3] || '';
+                            var color = cart[key][4] || '';
+                            var itemTotal = qty * price;
+                            totalPrice += itemTotal;
+                            
+                            var variantInfo = '';
+                            if (size || color) {
+                                variantInfo = '<div class="item-variants">' + 
+                                (size ? 'Size: ' + size : '') + 
+                                (size && color ? ', ' : '') + 
+                                (color ? 'Color: ' + color : '') + 
+                                '</div>';
+                            }
+                            
+                            cartItemsHtml += '<div class="cart-item" data-key="' + key + '">' +
+                                '<div class="item-image">' +
+                                '<i class="fas fa-tshirt"></i>' +
+                                '</div>' +
+                                '<div class="item-details">' +
+                                '<div class="item-name">' + name + '</div>' +
+                                '<div class="item-price">₹' + price + ' each</div>' +
+                                variantInfo +
+                                '</div>' +
+                                '<div class="quantity-controls">' +
+                                '<button class="quantity-btn" onclick="updateQuantity(\'' + key + '\', -1)" title="Decrease quantity">' +
+                                '<i class="fas fa-minus"></i>' +
+                                '</button>' +
+                                '<span class="quantity-display">' + qty + '</span>' +
+                                '<button class="quantity-btn" onclick="updateQuantity(\'' + key + '\', 1)" title="Increase quantity">' +
+                                '<i class="fas fa-plus"></i>' +
+                                '</button>' +
+                                '</div>' +
+                                '<div class="item-total">₹' + itemTotal + '</div>' +
+                                '<button class="remove-item" onclick="removeItem(\'' + key + '\')" title="Remove item">' +
+                                '<i class="fas fa-trash"></i>' +
+                                '</button>' +
+                                '</div>';
+                        }
+                    }
+                }
+            }
+            
+            console.log('Setting cartItems HTML:', cartItemsHtml);
+            $('#cartItems').html(cartItemsHtml);
+        }
+
+        function updateQuantity(key, change) {
+            if (cart[key]) {
+                cart[key][0] += change;
+                if (cart[key][0] <= 0) {
+                    delete cart[key];
+                }
+                saveCart();
+                
+                // Update cart display
+                populateCartItems();
+                calculateTotals();
+            }
+        }
+
+        function removeItem(key) {
+            if (confirm('Are you sure you want to remove this item from your cart?')) {
+                delete cart[key];
+                saveCart();
+                
+                // Update cart display
+                populateCartItems();
+                calculateTotals();
+            }
+        }
+
+        function calculateTotals() {
+            subtotal = totalPrice;
+            tax = Math.round(subtotal * 0.18);
+            const total = subtotal + tax;
+            
+            $('#subtotal').text('₹' + subtotal);
+            $('#tax').text('₹' + tax);
+            $('#total').text('₹' + total);
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Initialize page
+        $(document).ready(function() {
+            // Load cart from localStorage
+            cart = loadCart();
+            
+            // Add test items if cart is empty
+            addTestItemsToCart();
+            
+            // Populate cart items
+            populateCartItems();
+            
+            // Calculate totals
+            calculateTotals();
+        });
+    </script>
+</body>
+</html>

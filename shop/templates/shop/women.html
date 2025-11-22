@@ -1,0 +1,268 @@
+{% extends 'shop/basic.html' %}
+{% load static %}
+
+{% block title %}Women's Fashion - Outfit Avenue{% endblock %}
+
+{% block hero_title %}Women's Fashion Collection{% endblock %}
+{% block hero_description %}Discover our curated collection of women's fashion - from elegant sarees to trendy kurtas{% endblock %}
+
+{% block shop_content %}
+  <!-- Products Section -->
+  <div class="section-header" data-aos="fade-up">
+    <h2 class="section-title">Women's Fashion</h2>
+    <p class="section-subtitle">Discover our curated collection of women's fashion</p>
+  </div>
+
+  <div class="row g-4 mb-5">
+    {% for product_group in allProds %}
+      {% for product in product_group %}
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:100 }}">
+          <div class="product-card" data-category="Women's Fashion">
+              <div class="product-image" style="background-image: url('/media/{{ product.image }}');">
+              <div class="product-overlay">
+                <a href="{% url 'ProductView' product.id %}" class="btn btn-light btn-lg quick-view-btn"
+                   data-product-id="{{ product.id }}"
+                   data-product-name="{{ product.product_name }}"
+                   data-product-price="{{ product.price }}"
+                   data-product-category="Women's Fashion"
+                   data-product-image="/media/{{ product.image }}">
+                  <i class="fas fa-eye me-2"></i>Quick View
+                </a>
+              </div>
+            </div>
+            <div class="product-info">
+              <h5 class="product-title" id="namepr{{ product.id }}">{{ product.product_name }}</h5>
+              <div class="product-price">₹<span id="pricepr{{ product.id }}">{{ product.price }}</span></div>
+              <div class="d-flex justify-content-center align-items-center">
+                <div id="divpr{{ product.id }}" class="divpr">
+                  <button id="pr{{ product.id }}" class="btn btn-primary-custom btn-sm add-to-cart" 
+                          data-product-id="{{ product.id }}" 
+                          data-product-name="{{ product.product_name }}" 
+                          data-product-price="{{ product.price }}">
+                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% empty %}
+      <div class="empty-state" data-aos="fade-up">
+        <i class="fas fa-shopping-bag"></i>
+        <h3>No Women's Products Available</h3>
+        <p>We're working on adding amazing women's fashion to our collection. Check back soon!</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Quick View Modal -->
+  <div class="modal fade" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="quickViewModalLabel">Product Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <img id="modalProductImage" src="" alt="Product Image" class="img-fluid rounded">
+            </div>
+            <div class="col-md-6">
+              <h4 id="modalProductName" class="mb-3"></h4>
+              <div class="product-price mb-3">
+                <span class="h3 text-primary">₹<span id="modalProductPrice"></span></span>
+              </div>
+              <div class="mb-3">
+                <span class="category-badge" id="modalProductCategory"></span>
+              </div>
+              <div class="product-description mb-4">
+                <h6>Description:</h6>
+                <p id="modalProductDescription" class="text-muted"></p>
+              </div>
+              <div class="product-features mb-4">
+                <h6>Features:</h6>
+                <ul id="modalProductFeatures" class="list-unstyled">
+                  <!-- Features will be populated by JavaScript -->
+                </ul>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary-custom add-to-cart-modal" id="modalAddToCartBtn">
+                  <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+  // Enhanced cart functionality for women's category
+  $(document).ready(function() {
+    // Initialize cart from localStorage
+    if (localStorage.getItem('cart') == null) {
+      var cart = {};
+    } else {
+      cart = JSON.parse(localStorage.getItem('cart'));
+      updateCart(cart);
+    }
+
+    // Add to cart functionality - now handled by global handler in base.html
+
+    // Quick View functionality (Women)
+    $(document).on('click', '.quick-view-btn', function(e) {
+      e.preventDefault();
+      console.log('Quick View button clicked!');
+      
+      const productId = $(this).data('product-id');
+      const productName = $(this).data('product-name');
+      const productPrice = $(this).data('product-price');
+      const productCategory = $(this).data('product-category');
+      const productImage = $(this).data('product-image');
+      
+      console.log('Product data:', {productId, productName, productPrice, productCategory, productImage});
+      
+      // Populate modal with product data
+      $('#modalProductName').text(productName);
+      $('#modalProductPrice').text(productPrice);
+      $('#modalProductCategory').text(productCategory);
+      $('#modalProductImage').attr('src', productImage);
+      
+      // Generate product description based on category and name
+      const description = generateProductDescription(productName, productCategory);
+      $('#modalProductDescription').text(description);
+      
+      // Generate product features
+      const features = generateProductFeatures(productName, productCategory);
+      $('#modalProductFeatures').html(features);
+      
+      // Set up modal add to cart button
+      $('.add-to-cart-modal').off('click').on('click', function() {
+        addToCartFromModal(productId, productName, productPrice);
+        $('#quickViewModal').modal('hide');
+      });
+      
+      // Show modal
+      console.log('Attempting to show modal...');
+      $('#quickViewModal').modal('show');
+      console.log('Modal show called');
+    });
+
+    // Quantity controls - now handled by global cart system
+    // The global handler will manage cart state and UI updates
+  });
+
+  // Generate product description based on product name and category
+  function generateProductDescription(productName, category) {
+    const descriptions = {
+      'Women\'s Fashion': {
+        'Kurtas': 'A beautiful straight full sleeve cotton kurta that combines traditional elegance with modern comfort. Perfect for daily wear, office, or casual outings. The breathable cotton fabric ensures comfort throughout the day while maintaining a stylish appearance.',
+        'Sarees': 'An elegant ethnic saree crafted from premium cotton fabric. This timeless piece features traditional patterns and colors that celebrate Indian culture. Perfect for festivals, weddings, and special occasions. The comfortable drape and beautiful design make it a must-have in every woman\'s wardrobe.',
+        'Lehenga Choli': 'A stunning semi-stitched lehenga choli set that embodies grace and elegance. Perfect for weddings, festivals, and special celebrations. The intricate embroidery and premium fabric create a luxurious look that makes you stand out on any special occasion.',
+        'Jackets': 'A stylish printed open front jacket that adds a contemporary touch to your wardrobe. Perfect for layering over kurtas or pairing with modern outfits. The versatile design allows for multiple styling options, making it a valuable addition to your collection.',
+        'Dresses': 'A chic and comfortable dress designed for the modern woman. Featuring contemporary cuts and premium fabric, this dress is perfect for both casual and semi-formal occasions. The elegant design ensures you look confident and stylish wherever you go.'
+      }
+    };
+    
+    // Find matching description
+    for (const key in descriptions[category]) {
+      if (productName.toLowerCase().includes(key.toLowerCase())) {
+        return descriptions[category][key];
+      }
+    }
+    
+    // Default description
+    return `A beautiful ${category.toLowerCase()} piece that combines style with comfort. Made from premium materials, this item is perfect for various occasions and ensures you look and feel great. The quality construction and attention to detail make it a valuable addition to your wardrobe.`;
+  }
+
+  // Generate product features based on product name and category
+  function generateProductFeatures(productName, category) {
+    const features = {
+      'Women\'s Fashion': [
+        '<li><i class="fas fa-check text-success me-2"></i>Elegant Design</li>',
+        '<li><i class="fas fa-check text-success me-2"></i>Premium Fabric</li>',
+        '<li><i class="fas fa-check text-success me-2"></i>Perfect Fit</li>',
+        '<li><i class="fas fa-check text-success me-2"></i>Easy Maintenance</li>',
+        '<li><i class="fas fa-check text-success me-2"></i>Versatile Styling</li>'
+      ]
+    };
+    
+    return features[category] ? features[category].join('') : features['Women\'s Fashion'].join('');
+  }
+
+  // Add to cart from modal - uses global cart system from base.html
+  function addToCartFromModal(productId, productName, productPrice) {
+    // Ensure cart exists in localStorage
+    if (typeof localStorage === 'undefined') {
+      console.error('localStorage is not available');
+      return;
+    }
+    
+    // Get cart from localStorage (global cart system)
+    let cart = {};
+    try {
+      const cartStr = localStorage.getItem('cart');
+      cart = cartStr ? JSON.parse(cartStr) : {};
+    } catch (e) {
+      console.error('Error parsing cart:', e);
+      cart = {};
+    }
+    
+    // Create cart key (no variants for Quick View - default)
+    const key = 'pr' + productId;
+    
+    // Add or update item in cart
+    if (cart[key]) {
+      cart[key][0] = cart[key][0] + 1; // Increment quantity
+    } else {
+      cart[key] = [1, productName, parseInt(productPrice), '', '']; // [quantity, name, price, size, color]
+    }
+    
+    // Save cart to localStorage
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Update cart display using global functions from base.html
+    if (typeof window.updateCartDisplay === 'function') {
+      window.updateCartDisplay();
+    }
+    if (typeof window.updateCartButtons === 'function') {
+      window.updateCartButtons(cart);
+    }
+    if (typeof window.updatePopover === 'function') {
+      window.updatePopover();
+    }
+    
+    // Show success notification
+    if (typeof showNotification === 'function') {
+      showNotification('Added to cart!', 'success');
+    } else {
+      alert('Added to cart!');
+    }
+  }
+
+  // Cart functions now handled globally in base.html
+
+  function showNotification(message, type) {
+    const notification = $(`
+      <div class="alert alert-${type} alert-dismissible fade show position-fixed" 
+           style="top: 100px; right: 20px; z-index: 9999; min-width: 300px;">
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    `);
+    
+    $('body').append(notification);
+    
+    setTimeout(() => {
+      notification.alert('close');
+    }, 3000);
+  }
+  </script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Your Email - Outfit Avenue{% endblock %}
+
+{% block content %}
+<div class="container my-5" data-aos="fade-up" data-aos-duration="800">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <div class="card border-0 shadow-lg rounded-3 overflow-hidden">
+        <div class="card-header" style="background: var(--gradient-primary); color: white;">
+          <h3 class="mb-0 py-2"><i class="fas fa-envelope-open-text me-2"></i>Email Verification</h3>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-muted">We sent a 6‑digit verification code to <strong>{{ email }}</strong>. Enter it below to verify your account.</p>
+          <form method="post" action="{% url 'account:verify_email_otp' %}" id="otpForm">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="otp" class="form-label">OTP Code</label>
+              <input 
+                type="text" 
+                pattern="[0-9]{6}" 
+                maxlength="6" 
+                minlength="6"
+                class="form-control" 
+                id="otp" 
+                name="otp" 
+                placeholder="000000" 
+                required
+                autocomplete="one-time-code"
+                inputmode="numeric"
+                style="font-size: 1.5rem; letter-spacing: 0.5rem; text-align: center; font-weight: bold;"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary-custom w-100">Verify Email</button>
+          </form>
+          <div class="d-flex justify-content-between mt-3">
+            <a href="{% url 'account:resend_registration_otp' %}" class="text-decoration-none">Resend Code</a>
+            <a href="{% url 'account:login' %}" class="text-decoration-none">Back to Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

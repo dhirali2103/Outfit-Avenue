@@ -1,0 +1,118 @@
+{% extends 'blog/basic.html' %}
+{% load static %}
+
+{% block title %}Fashion Blog - Outfit Avenue{% endblock %}
+
+{% block hero_title %}Fashion Blog{% endblock %}
+{% block hero_description %}Stay updated with the latest fashion trends, styling tips, and industry insights{% endblock %}
+
+{% block blog_content %}
+  <!-- Blog Posts Grid -->
+  <div class="row g-4">
+    {% for items in posts %}
+      {% for item in items %}
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:100 }}">
+          <article class="blog-card">
+            <div class="blog-image" style="background-image: url('/media/{{ item.thumbnail }}');">
+              <div class="blog-overlay">
+                <a href="blogPost/{{ item.post_id }}" class="btn btn-light btn-lg">
+                  <i class="fas fa-eye me-2"></i>Read More
+                </a>
+              </div>
+            </div>
+            <div class="blog-content">
+              <div class="blog-meta">
+                <div class="blog-date">
+                  <i class="fas fa-calendar-alt me-1"></i>
+                  {{ item.pub_date|date:"M d, Y" }}
+                </div>
+                <div class="blog-category">Fashion</div>
+              </div>
+              <h3 class="blog-title">{{ item.title }}</h3>
+              <p class="blog-excerpt">{{ item.head0|truncatewords:20 }}</p>
+              <a href="blogPost/{{ item.post_id }}" class="read-more-btn">
+                <i class="fas fa-arrow-right me-1"></i>Read More
+              </a>
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    {% empty %}
+      <div class="col-12">
+        <div class="empty-state" data-aos="fade-up">
+          <i class="fas fa-blog"></i>
+          <h3>No Blog Posts Yet</h3>
+          <p>We're working on creating amazing content for you. Check back soon for the latest fashion insights!</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Newsletter Subscription -->
+  <div class="row mt-5">
+    <div class="col-lg-8 mx-auto">
+      <div class="modern-card text-center p-5" data-aos="fade-up">
+        <h3 class="mb-3">Stay Updated with Our Blog</h3>
+        <p class="text-muted mb-4">Get the latest fashion tips, trends, and exclusive content delivered to your inbox.</p>
+        <form class="newsletter-form" id="blogNewsletterForm">
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Enter your email address" required>
+            <button class="btn btn-primary-custom" type="submit">
+              <i class="fas fa-paper-plane me-2"></i>Subscribe
+            </button>
+          </div>
+        </form>
+        <div id="blogNewsletterMessage" class="mt-3" style="display: none;">
+          <div class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>Thank you for subscribing! You'll receive our latest blog updates soon.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Blog-specific JavaScript
+  $(document).ready(function() {
+    // Newsletter form submission
+    $('#blogNewsletterForm').on('submit', function(e) {
+      e.preventDefault();
+      const email = $(this).find('input[type="email"]').val();
+      
+      // Simulate form submission
+      setTimeout(() => {
+        $('#blogNewsletterMessage').show();
+        $(this)[0].reset();
+        
+        // Hide message after 5 seconds
+        setTimeout(() => {
+          $('#blogNewsletterMessage').hide();
+        }, 5000);
+      }, 1000);
+    });
+
+    // Add hover effects to blog cards
+    $('.blog-card').hover(
+      function() {
+        $(this).find('.blog-overlay').css('opacity', '1');
+      },
+      function() {
+        $(this).find('.blog-overlay').css('opacity', '0');
+      }
+    );
+
+    // Add reading time estimation
+    $('.blog-excerpt').each(function() {
+      const text = $(this).text();
+      const wordCount = text.split(' ').length;
+      const readingTime = Math.ceil(wordCount / 200); // Average reading speed: 200 words per minute
+      
+      if (readingTime > 0) {
+        $(this).after(`<small class="text-muted"><i class="fas fa-clock me-1"></i>${readingTime} min read</small>`);
+      }
+    });
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends 'blog/basic.html' %}
+{% load static %}
+
+{% block title %}{{ post.0.title }} - Outfit Avenue Blog{% endblock %}
+
+{% block hero_title %}{{ post.0.title }}{% endblock %}
+{% block hero_description %}{{ post.0.head0|truncatewords:15 }}{% endblock %}
+
+{% block blog_content %}
+  {% for item in post %}
+    <div class="row">
+      <div class="col-lg-8">
+        <article class="blog-post-content" data-aos="fade-up">
+          <div class="blog-post-meta">
+            <div class="blog-post-date">
+              <i class="fas fa-calendar-alt me-2"></i>
+              Published on {{ item.pub_date|date:"F d, Y" }}
+            </div>
+            <div class="blog-post-category">Fashion</div>
+          </div>
+          
+          <img src="/media/{{ item.thumbnail }}" class="blog-post-image" alt="{{ item.title }}">
+          
+          <div class="blog-post-body">
+            <h2 class="blog-post-title">{{ item.head0 }}</h2>
+            <p>{{ item.chead0 }}</p>
+            
+            {% if item.head1 %}
+              <h3>{{ item.head1 }}</h3>
+              <p>{{ item.chead1 }}</p>
+            {% endif %}
+            
+            {% if item.head2 %}
+              <h3>{{ item.head2 }}</h3>
+              <p>{{ item.chead2 }}</p>
+            {% endif %}
+          </div>
+          
+          <!-- Social Sharing -->
+          <div class="social-sharing mt-5 pt-4 border-top">
+            <h5 class="mb-3">Share this article:</h5>
+            <div class="d-flex gap-3">
+              <a href="#" class="btn btn-outline-primary btn-sm">
+                <i class="fab fa-facebook-f me-1"></i>Facebook
+              </a>
+              <a href="#" class="btn btn-outline-info btn-sm">
+                <i class="fab fa-twitter me-1"></i>Twitter
+              </a>
+              <a href="#" class="btn btn-outline-danger btn-sm">
+                <i class="fab fa-pinterest me-1"></i>Pinterest
+              </a>
+              <a href="#" class="btn btn-outline-success btn-sm">
+                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+      
+      <div class="col-lg-4">
+        <aside class="blog-sidebar">
+          <!-- About Card -->
+          <div class="modern-card p-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <h4 class="mb-3">
+              <i class="fas fa-info-circle me-2 text-primary"></i>About Outfit Avenue
+            </h4>
+            <p class="mb-0">Your ultimate destination for fashion-forward clothing and accessories. We bring you the latest trends and timeless classics with exceptional quality and style.</p>
+          </div>
+          
+          <!-- Contact Card -->
+          <div class="modern-card p-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <h4 class="mb-3">
+              <i class="fas fa-envelope me-2 text-primary"></i>Stay Connected
+            </h4>
+            <div class="d-flex flex-column gap-2">
+              <a href="#" class="text-decoration-none">
+                <i class="fab fa-facebook me-2"></i>Follow us on Facebook
+              </a>
+              <a href="#" class="text-decoration-none">
+                <i class="fab fa-twitter me-2"></i>Follow us on Twitter
+              </a>
+              <a href="#" class="text-decoration-none">
+                <i class="fab fa-instagram me-2"></i>Follow us on Instagram
+              </a>
+              <a href="#" class="text-decoration-none">
+                <i class="fab fa-pinterest me-2"></i>Follow us on Pinterest
+              </a>
+            </div>
+          </div>
+          
+          <!-- Newsletter Card -->
+          <div class="modern-card p-4" data-aos="fade-up" data-aos-delay="300">
+            <h4 class="mb-3">
+              <i class="fas fa-newspaper me-2 text-primary"></i>Newsletter
+            </h4>
+            <p class="small text-muted mb-3">Get the latest fashion tips and trends delivered to your inbox.</p>
+            <form class="newsletter-form" id="sidebarNewsletterForm">
+              <div class="input-group">
+                <input type="email" class="form-control form-control-sm" placeholder="Your email" required>
+                <button class="btn btn-primary-custom btn-sm" type="submit">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </form>
+            <div id="sidebarNewsletterMessage" class="mt-2" style="display: none;">
+              <div class="alert alert-success alert-sm" role="alert">
+                <i class="fas fa-check-circle me-1"></i>Subscribed!
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  {% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Blog post specific JavaScript
+  $(document).ready(function() {
+    // Sidebar newsletter form
+    $('#sidebarNewsletterForm').on('submit', function(e) {
+      e.preventDefault();
+      const email = $(this).find('input[type="email"]').val();
+      
+      setTimeout(() => {
+        $('#sidebarNewsletterMessage').show();
+        $(this)[0].reset();
+        
+        setTimeout(() => {
+          $('#sidebarNewsletterMessage').hide();
+        }, 3000);
+      }, 1000);
+    });
+
+    // Add smooth scrolling for internal links
+    $('a[href^="#"]').on('click', function(event) {
+      var target = $(this.getAttribute('href'));
+      if (target.length) {
+        event.preventDefault();
+        $('html, body').stop().animate({
+          scrollTop: target.offset().top - 100
+        }, 1000);
+      }
+    });
+
+    // Add table of contents if there are multiple headings
+    const headings = $('.blog-post-body h2, .blog-post-body h3');
+    if (headings.length > 2) {
+      let toc = '<div class="modern-card p-4 mb-4"><h5><i class="fas fa-list me-2"></i>Table of Contents</h5><ul class="list-unstyled">';
+      headings.each(function(index) {
+        const id = 'heading-' + index;
+        $(this).attr('id', id);
+        toc += '<li class="mb-1"><a href="#' + id + '" class="text-decoration-none small">' + $(this).text() + '</a></li>';
+      });
+      toc += '</ul></div>';
+      $('.blog-sidebar').prepend(toc);
+    }
+
+    // Add reading progress bar
+    addReadingProgress();
+  });
+
+  function addReadingProgress() {
+    const progressBar = $('<div class="reading-progress"></div>');
+    progressBar.css({
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '0%',
+      height: '3px',
+      background: 'var(--gradient-primary)',
+      zIndex: '9999',
+      transition: 'width 0.3s ease'
+    });
+    
+    $('body').prepend(progressBar);
+    
+    $(window).scroll(function() {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      progressBar.css('width', scrolled + '%');
+    });
+  }
+  </script>
+{% endblock %}

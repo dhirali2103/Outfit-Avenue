@@ -1,0 +1,598 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order - Outfit Avenue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8f9fa;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 2.5rem;
+            padding-bottom: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background: #e5e7eb;
+            border: 2px solid white;
+            z-index: 2;
+        }
+        
+        .timeline-item.active::before {
+            background: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+        
+        .timeline-item.completed::before {
+            background: #10b981;
+        }
+        
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 0.875rem;
+            top: 1.25rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: #e5e7eb;
+        }
+        
+        .timeline-item.completed:not(:last-child)::after {
+            background: #10b981;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-shopping-bag text-blue-600 text-2xl"></i>
+                    <h1 class="text-xl font-bold text-gray-800">Outfit Avenue</h1>
+                </div>
+                <a href="/shop/" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Shop
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Track Your Order</h2>
+            <p class="text-gray-600">Enter your order details to track your shipment</p>
+        </div>
+        
+        <!-- Search Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <form id="trackerForm" method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="orderId" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-hashtag mr-2 text-blue-600"></i>Order ID
+                        </label>
+                        <input type="text" id="orderId" name="orderId" 
+                            value="{{ order_id_param|default:'' }}"
+                            placeholder="Enter Order ID" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-envelope mr-2 text-blue-600"></i>Email Address
+                        </label>
+                        <input type="email" id="email" name="email" 
+                            {% if user.is_authenticated and user.email %}value="{{ user.email }}"{% endif %}
+                            placeholder="Enter your email" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                            <i class="fas fa-search mr-2"></i>Track Order
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loading-state" class="hidden text-center py-12">
+            <div class="inline-block">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+                <p class="text-gray-600">Loading order details...</p>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error-state" class="hidden bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-exclamation-circle text-red-600 text-2xl"></i>
+                <div>
+                    <h3 class="font-semibold text-red-800">Order Not Found</h3>
+                    <p class="text-red-600 text-sm">Please check your Order ID and Email address and try again.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Details -->
+        <div id="order-details" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column - Order Timeline -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Order Status Timeline -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-route mr-3 text-blue-600"></i>Order Status
+                        </h3>
+                        <div id="timeline" class="space-y-0">
+                            <!-- Timeline items will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-shopping-bag mr-3 text-blue-600"></i>Order Items
+                        </h3>
+                        <div id="order-items" class="space-y-4">
+                            <!-- Order items will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column - Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6 card-hover">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-info-circle mr-3 text-blue-600"></i>Order Summary
+                        </h3>
+                        
+                        <div id="order-summary" class="space-y-4">
+                            <!-- Order summary will be inserted here -->
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="mt-6 pt-6 border-t space-y-3">
+                            <button type="button" id="refresh-order" class="w-full text-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                <i class="fas fa-sync-alt mr-2"></i>Refresh Status
+                            </button>
+                            <a href="/account/orders/" class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-list mr-2"></i>View All Orders
+                            </a>
+                            <a href="/shop/" class="block w-full text-center px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors">
+                                <i class="fas fa-shopping-bag mr-2"></i>Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="text-center py-12">
+            <div class="inline-block bg-white rounded-xl shadow-sm border border-gray-200 p-12 max-w-md">
+                <i class="fas fa-search text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Track Your Order</h3>
+                <p class="text-gray-600 mb-6">Enter your Order ID and Email address above to view your order status and tracking information.</p>
+                <div class="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Need help? <a href="/shop/contact/" class="text-blue-600 hover:text-blue-800">Contact us</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // If order_id is in URL, auto-submit form
+            {% if order_id_param %}
+                $('#email').focus();
+                // Auto-submit if email is pre-filled
+                {% if user.is_authenticated and user.email %}
+                    setTimeout(function() {
+                        $('#trackerForm').submit();
+                    }, 500);
+                {% endif %}
+            {% endif %}
+            
+            // Function to fetch order details
+            function fetchOrderDetails() {
+                const orderId = $('#orderId').val().trim();
+                const email = $('#email').val().trim();
+                
+                if (!orderId || !email) {
+                    alert('Please enter both Order ID and Email address');
+                    return;
+                }
+                
+                // Show loading, hide other states
+                $('#loading-state').removeClass('hidden');
+                $('#error-state').addClass('hidden');
+                $('#order-details').addClass('hidden');
+                $('#empty-state').addClass('hidden');
+                
+                // Submit form
+                $.ajax({
+                    type: 'POST',
+                    url: '/shop/tracker/',
+                    data: {
+                        'orderId': orderId,
+                        'email': email,
+                        'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(data) {
+                        $('#loading-state').addClass('hidden');
+                        
+                        try {
+                            const response = JSON.parse(data);
+                            
+                            if (response.status === 'success' && response.updates && response.updates.length > 0) {
+                                displayOrderDetails(response);
+                            } else {
+                                showError();
+                            }
+                        } catch (e) {
+                            showError();
+                        }
+                    },
+                    error: function() {
+                        $('#loading-state').addClass('hidden');
+                        showError();
+                    }
+                });
+            }
+            
+            // Form submission
+            $('#trackerForm').on('submit', function(e) {
+                e.preventDefault();
+                fetchOrderDetails();
+            });
+            
+            // Refresh button
+            $(document).on('click', '#refresh-order', function() {
+                fetchOrderDetails();
+            });
+        });
+        
+        function displayOrderDetails(data) {
+            const order = data.order;
+            const updates = data.updates;
+            const items = JSON.parse(data.itemsJson);
+            
+            // Display timeline
+            displayTimeline(updates);
+            
+            // Display order items
+            displayOrderItems(items);
+            
+            // Display order summary
+            displayOrderSummary(order);
+            
+            // Show order details
+            $('#order-details').removeClass('hidden').addClass('fade-in');
+            $('#empty-state').addClass('hidden');
+            
+            // Scroll to order details
+            $('html, body').animate({
+                scrollTop: $('#order-details').offset().top - 100
+            }, 500);
+        }
+        
+        function displayTimeline(updates) {
+            const timeline = $('#timeline');
+            timeline.empty();
+            
+            // Define status stages with their corresponding status_type values from database
+            const stages = [
+                { 
+                    key: 'order_placed', 
+                    label: 'Order Placed', 
+                    icon: 'fa-shopping-cart',
+                    statusTypes: ['order_placed']
+                },
+                { 
+                    key: 'order_confirmed', 
+                    label: 'Order Confirmed', 
+                    icon: 'fa-check-circle',
+                    statusTypes: ['order_confirmed', 'payment_received']
+                },
+                { 
+                    key: 'processing', 
+                    label: 'Processing', 
+                    icon: 'fa-cog',
+                    statusTypes: ['processing', 'packed']
+                },
+                { 
+                    key: 'shipped', 
+                    label: 'Shipped', 
+                    icon: 'fa-shipping-fast',
+                    statusTypes: ['shipped', 'in_transit', 'out_for_delivery']
+                },
+                { 
+                    key: 'delivered', 
+                    label: 'Delivered', 
+                    icon: 'fa-check-double',
+                    statusTypes: ['delivered']
+                }
+            ];
+            
+            // Map status_type from database to stage index
+            const statusToStageMap = {};
+            stages.forEach((stage, index) => {
+                stage.statusTypes.forEach(statusType => {
+                    statusToStageMap[statusType] = index;
+                });
+            });
+            
+            // Track completed stages based on actual database updates
+            const completedStages = new Set();
+            const stageUpdates = {}; // Store the latest update for each stage
+            
+            updates.forEach((update) => {
+                const statusType = update.status_type || 'other';
+                const stageIndex = statusToStageMap[statusType];
+                
+                if (stageIndex !== undefined) {
+                    completedStages.add(stageIndex);
+                    // Store the latest update for this stage
+                    if (!stageUpdates[stageIndex] || new Date(update.time) > new Date(stageUpdates[stageIndex].time)) {
+                        stageUpdates[stageIndex] = update;
+                    }
+                }
+            });
+            
+            // Determine the highest completed stage (current active stage)
+            let highestCompletedStage = -1;
+            completedStages.forEach(stageIndex => {
+                if (stageIndex > highestCompletedStage) {
+                    highestCompletedStage = stageIndex;
+                }
+            });
+            
+            // Display timeline dynamically based on database updates
+            stages.forEach((stage, index) => {
+                const isCompleted = completedStages.has(index);
+                const isActive = index === highestCompletedStage && isCompleted;
+                const update = stageUpdates[index];
+                
+                // Build update description with tracking info if available
+                let updateDescription = '';
+                if (update) {
+                    updateDescription = update.text;
+                    if (update.tracking_number) {
+                        updateDescription += ` (Tracking: ${update.tracking_number})`;
+                    }
+                    if (update.location) {
+                        updateDescription += ` - ${update.location}`;
+                    }
+                }
+                
+                const timelineItem = $(`
+                    <div class="timeline-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <i class="fas ${stage.icon} ${isCompleted ? 'text-green-600' : 'text-gray-400'}"></i>
+                                    <h4 class="font-semibold ${isCompleted ? 'text-gray-800' : 'text-gray-400'}">${stage.label}</h4>
+                                </div>
+                                ${updateDescription ? `<p class="text-sm text-gray-600 ml-6">${updateDescription}</p>` : ''}
+                            </div>
+                            ${update ? `<span class="text-xs text-gray-500 ml-4">${formatDate(update.time)}</span>` : ''}
+                        </div>
+                    </div>
+                `);
+                
+                timeline.append(timelineItem);
+            });
+        }
+        
+        function displayOrderItems(items) {
+            const container = $('#order-items');
+            container.empty();
+            
+            let total = 0;
+            
+            for (const key in items) {
+                if (items.hasOwnProperty(key) && Array.isArray(items[key]) && items[key].length >= 3) {
+                    const [qty, name, price, size, color] = items[key];
+                    const itemTotal = qty * price;
+                    total += itemTotal;
+                    
+                    let variantInfo = '';
+                    if (size || color) {
+                        variantInfo = `<p class="text-xs text-gray-500 mt-1">
+                            ${size ? 'Size: ' + size : ''}
+                            ${size && color ? ', ' : ''}
+                            ${color ? 'Color: ' + color : ''}
+                        </p>`;
+                    }
+                    
+                    const itemCard = $(`
+                        <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-tshirt text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">${name}</h4>
+                                ${variantInfo}
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-sm text-gray-600">Qty: ${qty}</span>
+                                    <span class="font-semibold text-gray-800">₹${itemTotal}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    
+                    container.append(itemCard);
+                }
+            }
+        }
+        
+        function displayOrderSummary(order) {
+            const container = $('#order-summary');
+            container.empty();
+            
+            const paymentMethods = {
+                'cc': 'Credit/Debit Card',
+                'upi': 'UPI Payment',
+                'cod': 'Cash on Delivery'
+            };
+            
+            const paymentStatus = {
+                'paid': { text: 'Paid', color: 'green' },
+                'pending': { text: 'Pending', color: 'yellow' },
+                'cod_pending': { text: 'Pending', color: 'yellow' }
+            };
+            
+            const status = paymentStatus[order.payment_status] || { text: order.payment_status, color: 'gray' };
+            
+            const summary = $(`
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Order ID</p>
+                        <p class="font-semibold text-gray-800">#${order.order_id}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Order Date</p>
+                        <p class="font-medium text-gray-800">${formatDate(order.created_at)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Total Amount</p>
+                        <p class="text-2xl font-bold text-blue-600">₹${order.amount}</p>
+                    </div>
+                    <div class="border-t pt-4">
+                        <p class="text-sm text-gray-600 mb-1">Payment Method</p>
+                        <p class="font-medium text-gray-800">${paymentMethods[order.payment_method] || 'Online Payment'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Payment Status</p>
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(status.color)}">
+                            ${status.text}
+                        </span>
+                    </div>
+                    ${order.order_status ? `
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Order Status</p>
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium ${getOrderStatusClass(order.order_status)}">
+                            ${getOrderStatusLabel(order.order_status)}
+                        </span>
+                    </div>
+                    ` : ''}
+                    ${order.tracking_number ? `
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Tracking Number</p>
+                        <p class="font-medium text-gray-800">
+                            <i class="fas fa-truck mr-2 text-blue-600"></i>${order.tracking_number}
+                        </p>
+                    </div>
+                    ` : ''}
+                    <div class="border-t pt-4">
+                        <p class="text-sm text-gray-600 mb-2">Shipping Address</p>
+                        <p class="text-sm text-gray-800">
+                            ${order.name}<br>
+                            ${order.address}<br>
+                            ${order.city} - ${order.zip_code}<br>
+                            Phone: ${order.phone}
+                        </p>
+                    </div>
+                </div>
+            `);
+            
+            container.append(summary);
+        }
+        
+        function getStatusClass(color) {
+            const classes = {
+                'green': 'bg-green-100 text-green-600',
+                'yellow': 'bg-yellow-100 text-yellow-600',
+                'gray': 'bg-gray-100 text-gray-600',
+                'red': 'bg-red-100 text-red-600'
+            };
+            return classes[color] || classes['gray'];
+        }
+        
+        function getOrderStatusClass(status) {
+            const statusClasses = {
+                'pending': 'bg-yellow-100 text-yellow-600',
+                'confirmed': 'bg-blue-100 text-blue-600',
+                'processing': 'bg-purple-100 text-purple-600',
+                'shipped': 'bg-cyan-100 text-cyan-600',
+                'out_for_delivery': 'bg-orange-100 text-orange-600',
+                'delivered': 'bg-green-100 text-green-600',
+                'cancelled': 'bg-red-100 text-red-600',
+                'refunded': 'bg-gray-100 text-gray-600'
+            };
+            return statusClasses[status] || 'bg-gray-100 text-gray-600';
+        }
+        
+        function getOrderStatusLabel(status) {
+            const labels = {
+                'pending': 'Pending',
+                'confirmed': 'Confirmed',
+                'processing': 'Processing',
+                'shipped': 'Shipped',
+                'out_for_delivery': 'Out for Delivery',
+                'delivered': 'Delivered',
+                'cancelled': 'Cancelled',
+                'refunded': 'Refunded'
+            };
+            return labels[status] || status;
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-IN', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function showError() {
+            $('#error-state').removeClass('hidden');
+            $('#order-details').addClass('hidden');
+            $('#empty-state').addClass('hidden');
+        }
+    </script>
+</body>
+</html>

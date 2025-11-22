@@ -1,0 +1,204 @@
+{% extends "shop/basic.html" %}
+{% load static %}
+
+{% block title %}About Us - Outfit Avenue{% endblock %}
+
+{% block hero_title %}About Outfit Avenue{% endblock %}
+{% block hero_description %}Your Trendsetting Destination for Fashion Excellence{% endblock %}
+
+{% block shop_content %}
+  <!-- About Introduction -->
+  <div class="row align-items-center mb-5" data-aos="fade-up">
+    <div class="col-lg-6">
+      <h2 class="display-5 fw-bold mb-4">Welcome to Outfit Avenue</h2>
+      <p class="lead mb-4">At Outfit Avenue, we believe in fashion as a form of self-expression. Established in 2024, our online store is dedicated to curating the latest trends and timeless classics, providing you with a seamless shopping experience.</p>
+      <p class="mb-4">We're more than just a clothing store – we're your personal style companion, helping you discover pieces that reflect your unique personality and make you feel confident every day.</p>
+      <div class="d-flex gap-3">
+        <a href="/shop/" class="btn btn-primary-custom">
+          <i class="fas fa-shopping-bag me-2"></i>Shop Now
+        </a>
+        <a href="/shop/contact/" class="btn btn-outline-custom">
+          <i class="fas fa-envelope me-2"></i>Contact Us
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-6" data-aos="fade-left">
+      <img src="{% static '/shop/about-img.jpg' %}" class="img-fluid rounded-3 shadow-lg" alt="About Outfit Avenue">
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <section class="py-5">
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="modern-card text-center p-4 h-100">
+          <div class="feature-icon mb-3">
+            <i class="fas fa-history"></i>
+          </div>
+          <h4 class="mb-3">Our History</h4>
+          <p class="text-muted">Founded in 2024, Outfit Avenue was born out of a passion for fashion and a commitment to delivering exceptional style to your doorstep. Our journey started with the vision of creating a one-stop-shop for fashion enthusiasts.</p>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="modern-card text-center p-4 h-100">
+          <div class="feature-icon mb-3">
+            <i class="fas fa-users"></i>
+      </div>
+          <h4 class="mb-3">Customer Feedback</h4>
+          <p class="text-muted">"Outfit Avenue exceeded my expectations! The quality of their clothing and the attention to detail is unmatched. I'm a loyal customer now!" - Emily S.</p>
+      </div>
+  </div>
+
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="modern-card text-center p-4 h-100">
+          <div class="feature-icon mb-3">
+            <i class="fas fa-star"></i>
+          </div>
+          <h4 class="mb-3">Our Mission</h4>
+          <p class="text-muted">We're committed to providing you with the best of contemporary and classic fashion, combining style, quality, and convenience in every piece we offer.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section class="py-5" style="background: var(--bg-light);">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center mb-5" data-aos="fade-up">
+          <h2 class="display-5 fw-bold">Our Values</h2>
+          <p class="lead">What drives us every day</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="text-center">
+            <div class="feature-icon mb-3 mx-auto">
+              <i class="fas fa-gem"></i>
+            </div>
+            <h5 class="mb-3">Quality First</h5>
+            <p class="text-muted">Every piece is carefully selected for its quality, durability, and style.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="text-center">
+            <div class="feature-icon mb-3 mx-auto">
+              <i class="fas fa-heart"></i>
+            </div>
+            <h5 class="mb-3">Customer Care</h5>
+            <p class="text-muted">Your satisfaction is our priority, with dedicated support every step of the way.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="text-center">
+            <div class="feature-icon mb-3 mx-auto">
+              <i class="fas fa-leaf"></i>
+            </div>
+            <h5 class="mb-3">Sustainability</h5>
+            <p class="text-muted">We're committed to sustainable fashion practices and ethical sourcing.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+          <div class="text-center">
+            <div class="feature-icon mb-3 mx-auto">
+              <i class="fas fa-rocket"></i>
+            </div>
+            <h5 class="mb-3">Innovation</h5>
+            <p class="text-muted">Constantly evolving to bring you the latest trends and shopping experiences.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 text-center mb-5" data-aos="fade-up">
+          <h2 class="display-5 fw-bold">Meet Our Team</h2>
+          <p class="lead">The passionate people behind Outfit Avenue</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="modern-card text-center p-4">
+            <div class="team-avatar mb-3">
+              <div class="feature-icon mx-auto">
+                <i class="fas fa-user"></i>
+              </div>
+            </div>
+            <h5 class="mb-2">Sarah Johnson</h5>
+            <p class="text-primary mb-3">Fashion Director</p>
+            <p class="text-muted small">With over 10 years in fashion, Sarah curates our most stylish collections.</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+          <div class="modern-card text-center p-4">
+            <div class="team-avatar mb-3">
+              <div class="feature-icon mx-auto">
+                <i class="fas fa-user"></i>
+              </div>
+            </div>
+            <h5 class="mb-2">Michael Chen</h5>
+            <p class="text-primary mb-3">Customer Experience Manager</p>
+            <p class="text-muted small">Michael ensures every customer has an exceptional shopping experience.</p>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+          <div class="modern-card text-center p-4">
+            <div class="team-avatar mb-3">
+              <div class="feature-icon mx-auto">
+                <i class="fas fa-user"></i>
+              </div>
+            </div>
+            <h5 class="mb-2">Emily Rodriguez</h5>
+            <p class="text-primary mb-3">Quality Assurance Lead</p>
+            <p class="text-muted small">Emily ensures every product meets our high standards of quality.</p>
+          </div>
+              </div>
+              </div>
+          </div>
+  </section>
+
+  <!-- Contact CTA -->
+  <section class="py-5" style="background: var(--gradient-primary); color: white;">
+    <div class="container text-center">
+      <div class="row">
+        <div class="col-lg-8 mx-auto" data-aos="fade-up">
+          <h2 class="display-5 fw-bold mb-4">Ready to Start Shopping?</h2>
+          <p class="lead mb-4">Join thousands of satisfied customers who trust Outfit Avenue for their fashion needs.</p>
+          <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="/shop/" class="btn btn-light btn-lg">
+              <i class="fas fa-shopping-bag me-2"></i>Explore Collection
+            </a>
+            <a href="/shop/contact/" class="btn btn-outline-light btn-lg">
+              <i class="fas fa-envelope me-2"></i>Get in Touch
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_css %}
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+  }
+
+  .team-avatar .feature-icon {
+    width: 100px;
+    height: 100px;
+    font-size: 2.5rem;
+  }
+{% endblock %}

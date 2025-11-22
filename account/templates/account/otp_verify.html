@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Enter OTP - Outfit Avenue{% endblock %}
+
+{% block content %}
+<div class="container my-5" data-aos="fade-up" data-aos-duration="800">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <div class="card border-0 shadow-lg rounded-3 overflow-hidden">
+        <div class="card-header" style="background: var(--gradient-primary); color: white;">
+          <h3 class="mb-0 py-2"><i class="fas fa-key me-2"></i>Two‑Factor Authentication</h3>
+        </div>
+        <div class="card-body p-4">
+          <p class="text-muted">We sent a 6‑digit verification code to <strong>{{ email }}</strong>. Enter it below to finish signing in.</p>
+          <form method="post" action="{% url 'account:verify_login_otp' %}" id="otpForm">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="otp" class="form-label">OTP Code</label>
+              <input 
+                type="text" 
+                pattern="[0-9]{6}" 
+                maxlength="6" 
+                minlength="6"
+                class="form-control" 
+                id="otp" 
+                name="otp" 
+                placeholder="000000" 
+                required
+                autocomplete="one-time-code"
+                inputmode="numeric"
+                style="font-size: 1.5rem; letter-spacing: 0.5rem; text-align: center; font-weight: bold;"
+              >
+              <small class="form-text text-muted mt-2">
+                <i class="fas fa-info-circle me-1"></i>Enter the 6-digit code sent to your email
+              </small>
+              <div class="invalid-feedback">Please enter a valid 6-digit OTP code.</div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'account:resend_login_otp' %}" class="btn btn-link">Resend code</a>
+              <button type="submit" class="btn btn-primary">Verify & Sign In</button>
+            </div>
+          </form>
+          
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const otpInput = document.getElementById('otp');
+              const otpForm = document.getElementById('otpForm');
+              
+              // Auto-format OTP input (numbers only, 6 digits)
+              otpInput.addEventListener('input', function(e) {
+                // Remove non-numeric characters
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                // Limit to 6 digits
+                if (this.value.length > 6) {
+                  this.value = this.value.slice(0, 6);
+                }
+                
+                // Remove invalid class if valid
+                if (this.value.length === 6 && /^[0-9]{6}$/.test(this.value)) {
+                  this.classList.remove('is-invalid');
+                  this.classList.add('is-valid');
+                } else if (this.value.length > 0) {
+                  this.classList.remove('is-valid');
+                  this.classList.add('is-invalid');
+                } else {
+                  this.classList.remove('is-valid', 'is-invalid');
+                }
+              });
+              
+              // Prevent non-numeric input
+              otpInput.addEventListener('keypress', function(e) {
+                // Allow only numbers, backspace, delete, tab, arrow keys
+                if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                  e.preventDefault();
+                }
+              });
+              
+              // Handle paste
+              otpInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                const numbers = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
+                this.value = numbers;
+                this.dispatchEvent(new Event('input'));
+              });
+              
+              // Form validation
+              otpForm.addEventListener('submit', function(e) {
+                const otpValue = otpInput.value.trim();
+                
+                // Check if OTP is exactly 6 digits
+                if (!/^[0-9]{6}$/.test(otpValue)) {
+                  e.preventDefault();
+                  otpInput.classList.add('is-invalid');
+                  otpInput.focus();
+                  return false;
+                }
+                
+                // Ensure value is set correctly
+                otpInput.value = otpValue;
+                return true;
+              });
+            });
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+

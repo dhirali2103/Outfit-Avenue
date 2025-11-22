@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Email - Outfit Avenue{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-3 overflow-hidden" data-aos="fade-up" data-aos-duration="800">
+                <div class="card-header text-center py-4" style="background: var(--gradient-primary);">
+                    <h2 class="text-white mb-0"><i class="fas fa-envelope-circle-check me-2"></i>Verify Your Email</h2>
+                </div>
+                
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fas fa-envelope-open-text fa-4x" style="color: var(--primary-color);"></i>
+                        </div>
+                        <h5 class="mb-2">Check Your Email</h5>
+                        <p class="text-muted mb-3">
+                            We've sent a 6-digit OTP to<br>
+                            <strong>{{ email|default:"your email" }}</strong>
+                        </p>
+                        <p class="text-muted small">
+                            Please enter the OTP below to verify your email address and complete your registration.
+                        </p>
+                    </div>
+                    
+                    <form method="POST" id="otpForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4" data-aos="fade-up" data-aos-delay="100">
+                            <label for="otp" class="form-label fw-bold">Enter OTP</label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg text-center" 
+                                id="otp" 
+                                name="otp" 
+                                placeholder="000000" 
+                                maxlength="6" 
+                                pattern="[0-9]{6}"
+                                required
+                                autocomplete="one-time-code"
+                                autofocus
+                                style="font-size: 1.5rem; letter-spacing: 0.5rem; font-weight: bold;"
+                            >
+                            <small class="form-text text-muted mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Enter the 6-digit code sent to your email
+                            </small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mb-3" data-aos="fade-up" data-aos-delay="150">
+                            <button type="submit" class="btn btn-lg" style="background: var(--gradient-primary); color: white;">
+                                <i class="fas fa-check-circle me-2"></i>Verify Email
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+                        <p class="text-muted small mb-2">Didn't receive the OTP?</p>
+                        <a href="{% url 'account:resend_registration_otp' %}" class="btn btn-link text-decoration-none" style="color: var(--primary-color);">
+                            <i class="fas fa-redo me-1"></i>Resend OTP
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light p-3 text-center">
+                    <p class="mb-0 small text-muted">
+                        <i class="fas fa-clock me-1"></i>OTP expires in 10 minutes
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS animations
+        AOS.init();
+        
+        // Auto-format OTP input (numbers only, 6 digits)
+        const otpInput = document.getElementById('otp');
+        
+        otpInput.addEventListener('input', function(e) {
+            // Remove non-numeric characters
+            this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Limit to 6 digits
+            if (this.value.length > 6) {
+                this.value = this.value.slice(0, 6);
+            }
+        });
+        
+        otpInput.addEventListener('keypress', function(e) {
+            // Allow only numbers
+            if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') {
+                e.preventDefault();
+            }
+        });
+        
+        // Auto-submit when 6 digits are entered
+        otpInput.addEventListener('input', function() {
+            if (this.value.length === 6) {
+                // Optional: auto-submit after a short delay
+                // Uncomment the line below if you want auto-submit
+                // setTimeout(() => document.getElementById('otpForm').submit(), 500);
+            }
+        });
+        
+        // Paste handling for OTP
+        otpInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+            const numbers = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
+            this.value = numbers;
+            if (numbers.length === 6) {
+                document.getElementById('otpForm').submit();
+            }
+        });
+    });
+</script>
+{% endblock %}
+

@@ -1,0 +1,646 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <!-- AOS Animation Library -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+  <title>{% block title %}Outfit Avenue - Fashion Forward{% endblock %}</title>
+
+  <style>
+    :root {
+      --primary-color: #e43c5c;
+      --secondary-color: #2c3e50;
+      --accent-color: #f39c12;
+      --text-dark: #2c3e50;
+      --text-light: #7f8c8d;
+      --bg-light: #f8f9fa;
+      --gradient-primary: linear-gradient(135deg, #e43c5c 0%, #f39c12 100%);
+      --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* Navigation */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-color) !important;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-dark) !important;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-color) !important;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 50%;
+      background: var(--gradient-primary);
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Buttons */
+    .btn-custom {
+      padding: 12px 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary-custom {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: 0 5px 15px rgba(228, 60, 92, 0.3);
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(228, 60, 92, 0.4);
+      color: white;
+    }
+
+    .btn-outline-custom {
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+    }
+
+    .btn-outline-custom:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Cards */
+    .modern-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(228, 60, 92, 0.1);
+    }
+
+    .modern-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--secondary-color);
+      color: white;
+      padding: 60px 0 30px;
+    }
+
+    .footer h5 {
+      color: var(--accent-color);
+      margin-bottom: 20px;
+    }
+
+    .social-links a {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      background: var(--primary-color);
+      color: white;
+      text-align: center;
+      line-height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .social-links a:hover {
+      background: var(--accent-color);
+      transform: translateY(-3px);
+    }
+
+    /* Page Content */
+    .page-content {
+      min-height: calc(100vh - 200px);
+      padding-top: 100px;
+    }
+
+    /* Search Form */
+    .search-form {
+      position: relative;
+    }
+
+    .search-form .form-control {
+      border-radius: 50px;
+      border: 2px solid rgba(228, 60, 92, 0.2);
+      padding: 12px 20px;
+      transition: all 0.3s ease;
+    }
+
+    .search-form .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(228, 60, 92, 0.25);
+    }
+
+    /* Cart Button */
+    .cart-btn {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(228, 60, 92, 0.3);
+      color: white;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .navbar-brand {
+        font-size: 1.5rem;
+      }
+
+      .btn-custom {
+        padding: 10px 25px;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Scroll animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    </style>
+    {% block extra_css %}{% endblock %}
+  
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-sun me-2"></i>Outfit Avenue
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/shop/">Shop</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/blog/">Blog</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/shop/about/">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/shop/contact/">Contact</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <form class="search-form me-3" method="get" action="/shop/search/">
+            <div class="input-group">
+              <input class="form-control" type="search" name="search" placeholder="Search products..."
+                aria-label="Search" />
+              <button class="btn btn-outline-custom" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </form>
+          <button type="button" id="popcart" class="cart-btn" data-container="body" data-bs-toggle="popover"
+            data-bs-placement="bottom" data-bs-content="Your cart is empty">
+            <i class="fas fa-shopping-cart me-2"></i>
+            Cart (<span id="cart">0</span>)
+          </button>
+          {% if request.user.is_authenticated %}
+            <div class="dropdown ms-3">
+              <button class="btn btn-outline-custom dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user me-1"></i>{{ request.user.name|default:request.user.email }}
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                <li><a class="dropdown-item" href="{% url 'account:profile' %}"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'account:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+              </ul>
+            </div>
+          {% else %}
+            <div class="btn-group ms-3">
+              <a href="{% url 'account:login' %}" class="btn btn-outline-custom me-2">Sign in</a>
+              <a href="{% url 'account:register' %}" class="btn btn-primary-custom">Sign up</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <div class="page-content">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <h5><i class="fas fa-sun me-2"></i>Outfit Avenue</h5>
+          <p class="mb-3">Your ultimate destination for fashion-forward clothing and accessories. We bring you the
+            latest trends and timeless classics.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-pinterest"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="/shop/" class="text-light text-decoration-none">Shop</a></li>
+            <li><a href="/blog/" class="text-light text-decoration-none">Blog</a></li>
+            <li><a href="/shop/about/" class="text-light text-decoration-none">About</a></li>
+            <li><a href="/shop/contact/" class="text-light text-decoration-none">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5>Categories</h5>
+          <ul class="list-unstyled">
+            <li><a href="/shop/mencat/" class="text-light text-decoration-none">Men's Fashion</a></li>
+            <li><a href="/shop/womencat/" class="text-light text-decoration-none">Women's Fashion</a></li>
+            <li><a href="/shop/kidscat/" class="text-light text-decoration-none">Kids Wear</a></li>
+            <li><a href="/shop/tracker/" class="text-light text-decoration-none">Track Order</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <h5>Contact Info</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i>123 Fashion Street, Style City</li>
+            <li class="mb-2"><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</li>
+            <li class="mb-2"><i class="fas fa-envelope me-2"></i>info@outfitavenue.com</li>
+            <li><i class="fas fa-clock me-2"></i>Mon-Fri: 9AM-6PM</li>
+          </ul>
+        </div>
+      </div>
+      <hr class="my-4">
+      <div class="row">
+        <div class="col-md-6">
+          <p>&copy; 2024 Outfit Avenue. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-end">
+          <p>Made with <i class="fas fa-heart text-danger"></i> for fashion lovers</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    // Initialize AOS
+    AOS.init({
+      duration: 1000,
+      once: true,
+      offset: 100
+    });
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Navbar background change on scroll
+    window.addEventListener('scroll', function () {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+      } else {
+        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+      }
+    });
+
+    // Add scroll-triggered animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    // Observe all fade-in elements
+    document.querySelectorAll('.fade-in').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Cart functionality (global, object-based)
+    let cart = JSON.parse(localStorage.getItem('cart')) || {};
+    updateCartDisplay();
+    updatePopover();
+
+    function saveCart() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function getCartItemCount() {
+      let count = 0;
+      for (const key in cart) {
+        count += cart[key][0];
+      }
+      return count;
+    }
+
+    function updateCartDisplay() {
+      document.getElementById('cart').textContent = getCartItemCount();
+    }
+
+    // Update cart display with plus/minus buttons (for old implementation compatibility)
+    function updateCartButtons(cart) {
+      for (const key in cart) {
+        const divEl = document.getElementById('div' + key);
+        if (divEl) {
+          const id = key.replace('pr', '');
+          const item = cart[key];
+          divEl.innerHTML = `<button id='minus${key}' class='btn btn-outline-custom btn-sm minus'><i class='fas fa-minus'></i></button> <span id='val${key}' class='mx-2 fw-bold'>${item[0]}</span> <button id='plus${key}' class='btn btn-outline-custom btn-sm plus'><i class='fas fa-plus'></i></button>`;
+        }
+      }
+    }
+
+    // Initialize popover
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+      return new bootstrap.Popover(popoverTriggerEl, { html: true });
+    });
+
+    function updatePopover() {
+      if (!document.getElementById('popcart')) return;
+      let content = "<h6 class='mb-3'><i class='fas fa-shopping-cart me-2'></i>Your Cart</h6>";
+      if (Object.keys(cart).length === 0) {
+        content += "<p class='mb-0'>Your cart is empty</p>";
+      } else {
+        let totalItems = 0;
+        let totalPrice = 0;
+        content += "<div class='cart-items'>";
+        for (const key in cart) {
+          const [qty, name, price, size, color] = cart[key];
+          totalItems += qty;
+          totalPrice += qty * (price || 0);
+          content += `<div class="d-flex justify-content-between align-items-center mb-2">` +
+            `<div><span class="small fw-bold">${name}</span>` +
+            `${size || color ? `<br><small class='text-muted'>${size ? 'Size: ' + size : ''}${size && color ? ', ' : ''}${color ? 'Color: ' + color : ''}</small>` : ''}</div>` +
+            `<div class="text-end"><span class="small fw-bold">Qty: ${qty}</span><br><span class="small text-primary">₹${qty * (price || 0)}</span></div>` +
+            `</div>`;
+        }
+        content += "</div>";
+        content += `<div class="border-top pt-2 mt-2"><div class='d-flex justify-content-between mb-2'><strong>Total Items: ${totalItems}</strong><strong>Total: ₹${totalPrice}</strong></div></div>`;
+        content += "<div class='mt-3'><a href='/shop/cart/' class='btn btn-primary-custom btn-sm w-100 mb-2'><i class='fas fa-shopping-bag me-1'></i>View Cart</a><button id='clearCartBtn' class='btn btn-outline-custom btn-sm w-100'><i class='fas fa-trash me-1'></i>Clear Cart</button></div>";
+      }
+      const popEl = document.getElementById('popcart');
+      if (popEl) {
+        popEl.setAttribute('data-bs-content', content);
+        // Recreate popover to ensure content refresh without using non-public APIs
+        const existing = bootstrap.Popover.getInstance(popEl);
+        if (existing) existing.dispose();
+        new bootstrap.Popover(popEl, { html: true });
+      }
+    }
+
+    // Global add-to-cart handler (works with both old and new button classes)
+    document.addEventListener('click', function (e) {
+      // Handle both old (.cart) and new (.add-to-cart) button classes
+      const btn = e.target.closest('button.add-to-cart, .add-to-cart, button.cart, .cart');
+      if (!btn) return;
+
+      // Get product info from data attributes or element IDs
+      const productId = btn.dataset.productId || (btn.id || '').replace('pr', '');
+      let productName = btn.dataset.productName || '';
+      let productPrice = parseInt(btn.dataset.productPrice || '0');
+
+      // Fallback to DOM elements for old implementation
+      if (!productName && productId) {
+        const nameEl = document.getElementById('name' + productId) || document.getElementById('namepr' + productId);
+        productName = nameEl ? nameEl.innerHTML : '';
+      }
+      if (!productPrice && productId) {
+        const priceEl = document.getElementById('price' + productId) || document.getElementById('pricepr' + productId);
+        productPrice = priceEl ? parseInt(priceEl.innerHTML) : 0;
+      }
+
+      if (!productId || !productName) return;
+
+      // Variant selection (required if variant UI exists on page)
+      const hasSizeUI = document.querySelector('.size-btn') !== null;
+      const hasColorUI = document.querySelector('.color-btn') !== null;
+      const selectedSizeEl = document.querySelector('.size-btn.active');
+      const selectedColorEl = document.querySelector('.color-btn.active');
+      const selectedSize = selectedSizeEl ? selectedSizeEl.dataset.size : null;
+      const selectedColor = selectedColorEl ? selectedColorEl.dataset.color : null;
+      const quantityInput = document.getElementById('quantity');
+      const quantity = quantityInput ? Math.max(1, parseInt(quantityInput.value || '1')) : 1;
+
+      if ((hasSizeUI && !selectedSize) || (hasColorUI && !selectedColor)) {
+        showAddToCartConfirmation('Please select size/color before adding to cart.', 0, '', '', 0, true);
+        return;
+      }
+
+      const key = 'pr' + productId + (selectedSize ? '_' + selectedSize : '') + (selectedColor ? '_' + selectedColor : '');
+      if (cart[key]) {
+        cart[key][0] = cart[key][0] + quantity;
+      } else {
+        cart[key] = [quantity, productName, productPrice, selectedSize || '', selectedColor || ''];
+      }
+      saveCart();
+      updateCartDisplay();
+      updateCartButtons(cart);
+      updatePopover();
+      // Show confirmation with details
+      showAddToCartConfirmation(productName, productPrice, selectedSize || '', selectedColor || '', quantity, false);
+    });
+
+    // Handle plus/minus buttons for quantity control
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('button.plus')) {
+        const btn = e.target.closest('button.plus');
+        const id = btn.id.slice(6); // Remove 'plus' prefix
+        const key = 'pr' + id;
+        if (cart[key]) {
+          cart[key][0] = cart[key][0] + 1;
+          const valEl = document.getElementById('val' + key);
+          if (valEl) valEl.innerHTML = cart[key][0];
+          saveCart();
+          updateCartDisplay();
+          updateCartButtons(cart);
+          updatePopover();
+        }
+      }
+
+      if (e.target.closest('button.minus')) {
+        const btn = e.target.closest('button.minus');
+        const id = btn.id.slice(7); // Remove 'minus' prefix
+        const key = 'pr' + id;
+        if (cart[key]) {
+          cart[key][0] = cart[key][0] - 1;
+          cart[key][0] = Math.max(0, cart[key][0]);
+
+          if (cart[key][0] == 0) {
+            // Reset to Add to Cart button
+            const divEl = document.getElementById('div' + key);
+            if (divEl) {
+              divEl.innerHTML = `<button id="${key}" class="btn btn-primary-custom btn-sm add-to-cart" data-product-id="${id}" data-product-name="${cart[key][1]}" data-product-price="${cart[key][2]}"><i class="fas fa-shopping-cart me-1"></i>Add to Cart</button>`;
+            }
+            delete cart[key];
+          } else {
+            const valEl = document.getElementById('val' + key);
+            if (valEl) valEl.innerHTML = cart[key][0];
+          }
+          saveCart();
+          updateCartDisplay();
+          updateCartButtons(cart);
+          updatePopover();
+        }
+      }
+    });
+
+    // Clear cart from popover and handle View Cart button
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.id === 'clearCartBtn') {
+        e.preventDefault();
+        cart = {};
+        saveCart();
+        updateCartDisplay();
+        updatePopover();
+      }
+
+      // Handle View Cart button click
+      if (e.target && e.target.closest('a[href="/shop/cart/"]')) {
+        // Close the popover when View Cart is clicked
+        const popEl = document.getElementById('popcart');
+        if (popEl) {
+          const popoverInstance = bootstrap.Popover.getInstance(popEl);
+          if (popoverInstance) {
+            popoverInstance.hide();
+          }
+        }
+      }
+    });
+
+    // Confirmation toast/alert helper
+    function showAddToCartConfirmation(name, price, size, color, qty, isError) {
+      const total = getCartItemCount();
+      const details = isError ? `<small class='text-danger'>${name}</small>` : `<small>${name} - ₹${price}</small><br>` + (size || color ? `<small class='text-muted'>${size ? 'Size: ' + size : ''}${size && color ? ', ' : ''}${color ? 'Color: ' + color : ''}</small><br>` : '') + `<small class='text-primary'>Cart items: ${total}</small>`;
+      const message = `
+          <div class="d-flex align-items-center">
+            <i class="fas ${isError ? 'fa-exclamation-circle text-danger' : 'fa-check-circle text-success'} me-2"></i>
+            <div>
+              <strong>${isError ? 'Selection Required' : 'Added to Cart!'}</strong><br>
+              ${details}
+            </div>
+          </div>
+        `;
+
+      const notification = $(`
+          <div class="alert alert-${isError ? 'danger' : 'success'} alert-dismissible fade show position-fixed" 
+               style="top: 100px; right: 20px; z-index: 9999; min-width: 360px;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        `);
+
+      $('body').append(notification);
+      setTimeout(() => notification.alert('close'), isError ? 4000 : 3000);
+    }
+
+  </script>
+    {% block extra_js %} {% endblock %}
+</body>
+
+</html>
