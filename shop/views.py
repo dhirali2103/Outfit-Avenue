@@ -4,7 +4,6 @@ from .models import Product,Contact,Order,OrderUpdate
 from blog.models import BlogPost
 from math import ceil
 import json
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
@@ -251,6 +250,9 @@ def checkout(request):
         )
         update.save()
         
+        # Secure: Save order ID to session to verify ownership in success page
+        request.session['last_order_id'] = order.order_id
+        
         # Handle different payment methods
         if payment == 'cod':
             # Cash on Delivery - show confirmation page
@@ -352,6 +354,19 @@ def order_success(request):
     if order_id:
         try:
             order = Order.objects.get(order_id=order_id)
+            
+            # Security Check: Verify ownership (IDOR Prevention)
+            # Allow if user is authenticated and email matches OR if order ID matches the one just placed in this session
+            is_owner = False
+            if request.user.is_authenticated and order.email == request.user.email:
+                is_owner = True
+            elif str(order.order_id) == str(request.session.get('last_order_id')):
+                is_owner = True
+                
+            if not is_owner:
+                # If not owner, return empty/fallback to prevent data leakage
+                raise Order.DoesNotExist
+
             # Determine payment method display name
             payment_methods = {
                 'cc': 'Credit/Debit Card',
@@ -446,12 +461,21 @@ def about(request):
      return render(request, 'shop/about.html')
 def contact(request):
     if request.method=="POST":
-        # print(request)
         name=request.POST.get('name','')
         email=request.POST.get('email','')
         phone=request.POST.get('phonenumber','')
         desc=request.POST.get('desc','')
-        # print(name,email,phone,desc)
+        
+        # Input Validation
+        import re
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        phone_regex = r'^\+?1?\d{9,15}$'
+        
+        if not re.match(email_regex, email):
+            return HttpResponse("Invalid Email Address")
+        if not re.match(phone_regex, phone):
+            return HttpResponse("Invalid Phone Number")
+            
         contact=Contact(name=name,email=email,phone=phone,desc=desc)
         contact.save()
     return render(request, 'shop/contact.html')

@@ -20,20 +20,11 @@ import sys
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-is-o39*x_bxsy%*gk=b34j+r--z90c%hswc^=jq-msl4==i_=q'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-is-o39*x_bxsy%*gk=b34j+r--z90c%hswc^=jq-msl4==i_=q')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
-
-
-# Application definition
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 INSTALLED_APPS = [
     'shop.apps.ShopConfig',
@@ -89,6 +80,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Ecommerceweb.wsgi.application'
 
+allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+else:
+    # In development, allow localhost if DEBUG is True
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if DEBUG else []
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -198,96 +195,7 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Outfit Avenue <noreply@outfitavenue.com>')
-    
-    # ============================================================================
-    # GMAIL APP PASSWORD SETUP - DETAILED INSTRUCTIONS
-    # ============================================================================
-    # For Gmail, you MUST use an App Password, NOT your regular Gmail password.
-    # Regular passwords will NOT work and will show "BadCredentials" error.
-    #
-    # STEP-BY-STEP GUIDE:
-    #
-    # STEP 1: Go to Google Account Settings
-    #   - Open your web browser
-    #   - Go to: https://myaccount.google.com/
-    #   - Sign in with your Gmail account (garmy564@gmail.com)
-    #
-    # STEP 2: Enable 2-Step Verification (REQUIRED - Cannot skip this step)
-    #   - On the left sidebar, click "Security"
-    #   - Scroll down to "How you sign in to Google"
-    #   - Find "2-Step Verification" and click on it
-    #   - If it's OFF, click "Get Started" to enable it
-    #   - Follow the prompts to set up 2-Step Verification:
-    #     * Enter your phone number
-    #     * Verify with a code sent via SMS or phone call
-    #     * Click "Turn On" to complete setup
-    #   - IMPORTANT: You CANNOT create App Passwords without 2-Step Verification
-    #
-    # STEP 3: Create App Password
-    #   - Still in Security settings, scroll down to "2-Step Verification"
-    #   - Click on "App passwords" (this option only appears AFTER 2-Step is enabled)
-    #   - You may need to sign in again for security
-    #
-    # STEP 4: Generate App Password
-    #   - In the "App passwords" page:
-    #     * Select "Mail" from the "Select app" dropdown
-    #     * Select "Other (Custom name)" from "Select device" dropdown
-    #     * Type "Django Ecommerce" or any name you prefer
-    #     * Click "Generate" button
-    #
-    # STEP 5: Copy the App Password
-    #   - Google will show you a 16-character password
-    #   - It will look like: "abcd efgh ijkl mnop" (with spaces)
-    #   - Click "Copy" or manually copy it
-    #   - IMPORTANT: This password is shown ONLY ONCE - save it securely!
-    #
-    # STEP 6: Update This File
-    #   - Paste the 16-character password below in EMAIL_HOST_PASSWORD
-    #   - REMOVE ALL SPACES from the password
-    #   - Example: If Google shows "abcd efgh ijkl mnop"
-    #             Use: "abcdefghijklmnop" (no spaces)
-    #
-    # STEP 7: Save and Restart
-    #   - Save this settings.py file
-    #   - Restart your Django development server
-    #   - Try registering/login again - emails should now send successfully
-    #
-    # TROUBLESHOOTING:
-    #   - If "App passwords" option is missing: Enable 2-Step Verification first
-    #   - If password doesn't work: Make sure you removed all spaces
-    #   - If still failing: Generate a new App Password and try again
-    #   - Check spam folder: Sometimes emails go to spam initially
-    #
-    # ALTERNATIVE: If you can't use App Passwords, the system will show OTP
-    #              in the UI automatically when email fails (fallback feature)
-    # ============================================================================
-
-# Google OAuth2 Configuration
-# ============================================================================
-# GOOGLE OAUTH2 SETUP - DETAILED INSTRUCTIONS
-# ============================================================================
-# To enable Google login, you need to:
-#
-# STEP 1: Go to Google Cloud Console
-#   - Open: https://console.cloud.google.com/
-#   - Sign in with your Google account
-#   - Create a new project or select an existing one
-#
-# STEP 2: Enable Google+ API
-#   - Go to "APIs & Services" > "Library"
-#   - Search for "Google+ API" and enable it
-#   - Also enable "Google Identity" if available
-#
-# STEP 3: Create OAuth 2.0 Credentials
-#   - Go to "APIs & Services" > "Credentials"
-#   - Click "Create Credentials" > "OAuth client ID"
-#   - If prompted, configure the OAuth consent screen first:
-#     * Choose "External" (unless you have a Google Workspace)
-#     * Fill in app name: "Outfit Avenue"
-#     * Add your email as support email
-#     * Add scopes: email, profile, openid
-#     * Add test users if in testing mode
-#
+ 
 # STEP 4: Create OAuth Client ID
 #   - Application type: "Web application"
 #   - Name: "Outfit Avenue Web Client"
@@ -310,10 +218,73 @@ else:
 #   - Try logging in with Google
 # ============================================================================
 
-# Google OAuth2 credentials (set these in environment variables for production)
-GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID', '')
-GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
-GOOGLE_OAUTH2_REDIRECT_URI = os.environ.get(
-    'GOOGLE_OAUTH2_REDIRECT_URI', 
-    'http://127.0.0.1:8000/account/social/google/callback/'
-)
+# # Google OAuth2 credentials (set these in environment variables for production)
+# GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID', '')
+# GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
+# GOOGLE_OAUTH2_REDIRECT_URI = os.environ.get(
+#     'GOOGLE_OAUTH2_REDIRECT_URI', 
+#     'http://127.0.0.1:8000/account/social/google/callback/'
+# )
+
+# Security Headers
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+else:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SECURE_BROWSER_XSS_FILTER = False
+    SECURE_CONTENT_TYPE_NOSNIFF = False
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'security.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.security': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}

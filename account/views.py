@@ -18,10 +18,10 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from rest_framework_simplejwt.tokens import RefreshToken
 import json
-import requests
 import os
 import random
 import time
+import secrets
 
 from .models import User
 from shop.models import Order
@@ -67,7 +67,7 @@ def register(request):
                 messages.info(request, 'Email already registered. Please log in.')
                 return redirect('account:login')
             # Unverified user → resend OTP and redirect to OTP page
-            otp_code = f"{random.randint(100000, 999999)}"
+            otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
             request.session['registration_otp'] = {
                 'user_id': existing.id,
                 'email': existing.email,
@@ -94,7 +94,7 @@ def register(request):
             is_email_verified=False
         )
         # Create registration OTP session and redirect to OTP verification
-        otp_code = f"{random.randint(100000, 999999)}"
+        otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
         request.session['registration_otp'] = {
             'user_id': user.id,
             'email': user.email,
@@ -147,7 +147,7 @@ def user_login(request):
         if user is not None:
             if user.is_email_verified:
                 # Begin login MFA by sending OTP and redirect to OTP verification
-                otp_code = f"{random.randint(100000, 999999)}"
+                otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
                 request.session['login_mfa'] = {
                     'uid': user.id,
                     'email': user.email,
@@ -177,7 +177,7 @@ def user_login(request):
                 return redirect('account:verify_login_otp')
             else:
                 # Unverified → send registration OTP and redirect to email OTP page
-                otp_code = f"{random.randint(100000, 999999)}"
+                otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
                 request.session['registration_otp'] = {
                     'user_id': user.id,
                     'email': user.email,
@@ -425,7 +425,7 @@ def resend_registration_otp(request):
             pass
         candidate = User.objects.filter(is_email_verified=False).order_by('-id').first()
         if candidate:
-            otp_code = f"{random.randint(100000, 999999)}"
+            otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
             request.session['registration_otp'] = {
                 'user_id': candidate.id,
                 'email': candidate.email,
@@ -458,7 +458,7 @@ def resend_registration_otp(request):
     if not otp_data:
         candidate = User.objects.filter(is_email_verified=False).order_by('-id').first()
         if candidate:
-            otp_code = f"{random.randint(100000, 999999)}"
+            otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
             request.session['registration_otp'] = {
                 'user_id': candidate.id,
                 'email': candidate.email,
@@ -477,7 +477,7 @@ def resend_registration_otp(request):
         except Exception:
             pass
         return redirect('account:verify_email_otp')
-    otp_code = f"{random.randint(100000, 999999)}"
+    otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
     otp_data['otp'] = otp_code
     otp_data['exp'] = int(time.time()) + 600
     request.session['registration_otp'] = otp_data
@@ -585,7 +585,7 @@ def resend_login_otp(request):
     if not mfa:
         candidate = User.objects.filter(is_email_verified=True).order_by('-id').first()
         if candidate:
-            otp_code = f"{random.randint(100000, 999999)}"
+            otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
             request.session['login_mfa'] = {
                 'uid': candidate.id,
                 'email': candidate.email,
@@ -606,7 +606,7 @@ def resend_login_otp(request):
         except Exception:
             pass
         return redirect('account:verify_login_otp')
-    otp_code = f"{random.randint(100000, 999999)}"
+    otp_code = f"{secrets.SystemRandom().randint(100000, 999999)}"
     mfa['otp'] = otp_code
     mfa['exp'] = int(time.time()) + 300
     request.session['login_mfa'] = mfa
